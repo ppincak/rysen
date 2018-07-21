@@ -10,14 +10,14 @@ import (
 type BinanceCaller struct {
 	client  *BinanceClient
 	bus     *BinanceBus
-	counter *core.ApiCallCounter
+	limiter *core.CallLimiter
 }
 
-func NewCaller(client *BinanceClient, bus *BinanceBus, counter *core.ApiCallCounter) *BinanceCaller {
+func NewCaller(client *BinanceClient, bus *BinanceBus, limiter *core.CallLimiter) *BinanceCaller {
 	return &BinanceCaller{
 		client:  client,
 		bus:     bus,
-		counter: counter,
+		limiter: limiter,
 	}
 }
 
@@ -47,7 +47,7 @@ func (caller *BinanceCaller) call(topic string, symbols []string, eventType Call
 
 			resp, err := callable(client, symbol)
 
-			go caller.counter.IncrRequests(nil)
+			go caller.limiter.IncrRequests(nil)
 
 			if err == nil {
 				caller.bus.Publish(topic, &CallerEvent{

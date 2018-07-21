@@ -1,4 +1,4 @@
-package common
+package monitor
 
 type Statistic struct {
 	Name   string                 `json:"name"`

@@ -4,38 +4,29 @@ import (
 	"time"
 )
 
-type IntervalType int
-
-const (
-	SECOND IntervalType = iota
-	MINUTE
-	HOUR
-	DAY
-	WEEK
-)
-
 type Limit struct {
-	IntervalType IntervalType
-	Limit        int64
+	Interval time.Duration
+	Limit    int64
 }
 
-func ToIntervalType(interval string) IntervalType {
+// Converts string interval expression to Duration
+func ToDuration(interval string) time.Duration {
 	switch interval {
 	case "SECOND", "s":
-		return SECOND
+		return time.Duration(time.Second)
 	case "MINUTE", "m":
-		return MINUTE
+		return time.Duration(time.Minute)
 	case "HOUR", "h":
-		return HOUR
+		return time.Duration(time.Hour)
 	case "DAY", "d":
-		return DAY
+		return time.Duration(time.Hour * 24)
 	case "WEEK", "w":
-		return WEEK
+		return time.Duration(time.Hour * 24 * 7)
 	}
 	return -1
 }
 
 // Converts miliseconds to Duration
-func ToDuration(millis int64) time.Duration {
+func ToDurationMillis(millis int64) time.Duration {
 	return time.Duration(millis * int64(time.Millisecond))
 }

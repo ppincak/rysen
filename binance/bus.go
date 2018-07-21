@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// TODO move to common ?
 const BinanceBusBufferSize = 50
 
 type uuidMap map[string]*busEventContainer

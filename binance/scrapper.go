@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+//
 type Scraper struct {
 	topic   string
 	symbols []string
@@ -18,8 +19,7 @@ type Scraper struct {
 
 var _ core.Worker = (*Scraper)(nil)
 
-// Returns new Scraper
-// the interval value is in miliseconds
+// Returns new Scraper where the interval value is in miliseconds
 func NewScraper(topic string,
 	symbols []string,
 	fun CallerFunc,
@@ -29,11 +29,12 @@ func NewScraper(topic string,
 		topic:   topic,
 		symbols: symbols,
 		fun:     fun,
-		ticker:  time.NewTicker(time.Duration(interval * int64(time.Millisecond))),
+		ticker:  time.NewTicker(core.ToDurationMillis(interval)),
 		stopc:   make(chan struct{}),
 	}
 }
 
+// Start the scrapper
 func (scraper *Scraper) Start() {
 	for {
 		select {
@@ -46,6 +47,7 @@ func (scraper *Scraper) Start() {
 	}
 }
 
+// Stop the scrapper
 func (worker *Scraper) Stop() {
 	worker.stopc <- struct{}{}
 }

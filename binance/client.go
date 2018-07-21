@@ -10,20 +10,29 @@ import (
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/core"
+	"github.com/ppincak/rysen/monitor"
 	log "github.com/sirupsen/logrus"
 )
+
+var _ monitor.Reporter = (*BinanceClient)(nil)
 
 type BinanceClient struct {
 	url     string
 	secret  *api.Secret
-	metrics *core.Metrics
+	metrics *core.ApiMetrics
 }
 
 func NewClient(url string, secret *api.Secret) *BinanceClient {
 	return &BinanceClient{
 		url:     url,
 		secret:  secret,
-		metrics: core.NewMetrics(),
+		metrics: core.NewApiMetrics(),
+	}
+}
+
+func (client *BinanceClient) Statistics() []*monitor.Statistic {
+	return []*monitor.Statistic{
+		client.metrics.ToStatistic("binanceClientCalls"),
 	}
 }
 

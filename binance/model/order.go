@@ -1,6 +1,6 @@
 package model
 
-type OrderType uint32
+type OrderType uint8
 
 const (
 	LIMIT OrderType = iota
@@ -12,11 +12,26 @@ const (
 	LIMIT_MAKER
 )
 
-type Order interface {
-}
+var OrderTypes = map[OrderType]string{}
 
-type RealOrder struct {
-}
+type OrderStatus uint8
 
-type VirtualOrder struct {
+const (
+	NEW OrderStatus = iota
+	PARTIALLY_FILLED
+	FILLED
+	CANCELED
+	PENDING_CANCEL
+	REJECTED
+	EXPIRED
+)
+
+var OrderStatuses = map[OrderStatus]string{}
+
+type Order struct {
+	Symbol   string  `json:"symbol"`
+	Side     string  `json:"side"`
+	Type     string  `json:"type"`
+	Quantity int64   `json:"quantity"`
+	Price    float64 `json:"price"`
 }

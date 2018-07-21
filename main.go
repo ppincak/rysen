@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/ppincak/rysen/monitor"
+
 	"github.com/ppincak/rysen/core"
 
 	"github.com/ppincak/rysen/binance"
@@ -13,12 +15,8 @@ import (
 func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 
+	monitor := monitor.NewMonitor()
 	client := binance.NewClient("https://api.binance.com", nil)
-	// resp, _ := client.OrderBook("LTCBTC", 100)
-	// fmt.Println(resp)
-	// resp, _ = client.Trades("LTCBTC", 100)
-	// fmt.Println(resp)
-	//fmt.Println(client.ExchangeInfo())
 
 	apiCounter := core.NewApiCallCounter(10000, 10000)
 	go apiCounter.Start()
@@ -43,6 +41,8 @@ func main() {
 			}
 		}
 	}(outc)
+
+	monitor.Register(client)
 
 	select {}
 }

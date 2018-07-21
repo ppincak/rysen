@@ -1,21 +1,21 @@
-package core
+package crypto
 
-type Crypto struct {
+type Currency struct {
 	Name     string
 	Shortcut string
 	Code     uint32
 }
 
 var (
-	BITCOIN Crypto = Crypto{
+	BITCOIN Currency = Currency{
 		Name:     "BITCOIN",
 		Shortcut: "BTC",
 	}
-	ETHEREUM Crypto = Crypto{
+	ETHEREUM Currency = Currency{
 		Name:     "ETHEREUM",
 		Shortcut: "ETH",
 	}
-	LITECOIN Crypto = Crypto{
+	LITECOIN Currency = Currency{
 		Name:     "LITECOIN",
 		Shortcut: "LTC",
 	}

@@ -2,11 +2,11 @@ package binance
 
 import (
 	"github.com/ppincak/rysen/binance/model"
-	"github.com/ppincak/rysen/core"
+	"github.com/ppincak/rysen/crypto"
 )
 
-func NewSymbols(exchangeInfo *model.ExchangeInfo) *core.Symbols {
-	return &core.Symbols{
+func NewSymbols(exchangeInfo *model.ExchangeInfo) *crypto.Symbols {
+	return &crypto.Symbols{
 		Assets:  ToAssetsMap(exchangeInfo),
 		Symbols: ToSymbolSlice(exchangeInfo),
 	}

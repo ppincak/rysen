@@ -1,4 +1,4 @@
-package binance
+package core
 
 var Weights = map[string]interface{}{
 	"CandleSticks": 1,
@@ -11,6 +11,9 @@ type WeightCalculator struct {
 	maxWeight     uint32
 }
 
-func NewWeightCalculator() {
-
+func NewWeightCalculator() *WeightCalculator {
+	return &WeightCalculator{
+		currentWeight: 0,
+		maxWeight:     0,
+	}
 }
