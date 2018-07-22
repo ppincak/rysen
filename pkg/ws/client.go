@@ -13,8 +13,8 @@ import (
 
 type Client struct {
 	uuid       string
-	config     *WsConfig
-	server     *WsServer
+	config     *Config
+	handler    *Handler
 	conn       *websocket.Conn
 	writec     chan []byte
 	readc      chan []byte
@@ -22,15 +22,15 @@ type Client struct {
 	pongTicker *time.Ticker
 }
 
-func NewClient(writec *websocket.Conn, server *WsServer) *Client {
+func NewClient(writec *websocket.Conn, handler *Handler) *Client {
 	return &Client{
 		uuid:       uuid.New().String(),
-		config:     server.config,
-		server:     server,
+		config:     handler.config,
+		handler:    handler,
 		writec:     make(chan []byte),
 		readc:      make(chan []byte),
 		stopc:      make(chan struct{}),
-		pongTicker: time.NewTicker(server.config.PingWait),
+		pongTicker: time.NewTicker(handler.config.PingWait),
 	}
 }
 

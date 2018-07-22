@@ -7,25 +7,27 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type HttpServer struct {
-	config *ServerConfig
+type Server struct {
+	app    *App
+	config *Config
+	engine *gin.Engine
+	router *Router
 }
 
-func NewHttpServer(config *ServerConfig) *HttpServer {
+func NewServer(app *App, config *Config) *Server {
 	if config == nil {
-		config = DefaultServerConfig
+		config = DefaultConfig
 	}
 
-	return &HttpServer{
+	return &Server{
 		config: config,
+		engine: gin.Default(),
+		router: NewRouter(app),
 	}
 }
 
-func (server *HttpServer) Start() {
-	router := gin.Default()
+func (server *Server) Run() {
 	port := strings.Join([]string{":", strconv.Itoa(server.config.Port)}, "")
-
-	Init(router)
-
-	router.Run(port)
+	server.router.Init(server.engine)
+	server.engine.Run(port)
 }

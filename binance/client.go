@@ -14,43 +14,43 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var _ monitor.Reporter = (*BinanceClient)(nil)
+var _ monitor.Reporter = (*Client)(nil)
 
-type BinanceClient struct {
+type Client struct {
 	url     string
 	secret  *api.Secret
 	metrics *core.ApiMetrics
 }
 
-func NewClient(url string, secret *api.Secret) *BinanceClient {
-	return &BinanceClient{
+func NewClient(url string, secret *api.Secret) *Client {
+	return &Client{
 		url:     url,
 		secret:  secret,
 		metrics: core.NewApiMetrics(),
 	}
 }
 
-func (client *BinanceClient) Statistics() []*monitor.Statistic {
+func (client *Client) Statistics() []*monitor.Statistic {
 	return []*monitor.Statistic{
 		client.metrics.ToStatistic("binanceClientCalls"),
 	}
 }
 
-func (client *BinanceClient) assembleUrl(url string) string {
+func (client *Client) assembleUrl(url string) string {
 	var urlBuilder strings.Builder
 	urlBuilder.WriteString(client.url)
 	urlBuilder.WriteString(url)
 	return urlBuilder.String()
 }
 
-func (client *BinanceClient) addApiKey(request *resty.Request) *resty.Request {
+func (client *Client) addApiKey(request *resty.Request) *resty.Request {
 	if client.secret == nil {
 		panic("Api secrets are mssing is missing")
 	}
 	return request.SetHeader("X-MBX-APIKEY", client.secret.ApiKey)
 }
 
-func (client *BinanceClient) signQuery(request *resty.Request, value []byte) *resty.Request {
+func (client *Client) signQuery(request *resty.Request, value []byte) *resty.Request {
 	if client.secret == nil {
 		panic("Api secrets are mssing is missing")
 	}
@@ -61,7 +61,7 @@ func (client *BinanceClient) signQuery(request *resty.Request, value []byte) *re
 	return request.SetQueryParam("signature", string(hash))
 }
 
-func (client *BinanceClient) baseGetCall(url string, queryParams map[string]string) (api.ApiResponse, error) {
+func (client *Client) baseGetCall(url string, queryParams map[string]string) (api.ApiResponse, error) {
 	resp, err := resty.R().
 		SetQueryParams(queryParams).
 		Get(client.assembleUrl(url))
@@ -71,7 +71,7 @@ func (client *BinanceClient) baseGetCall(url string, queryParams map[string]stri
 	return apiResp, err
 }
 
-func (client *BinanceClient) baseQueryCall(url string, symbol string, limit uint32) (api.ApiResponse, error) {
+func (client *Client) baseQueryCall(url string, symbol string, limit uint32) (api.ApiResponse, error) {
 	queryParams := make(map[string]string)
 	if symbol != "" {
 		queryParams["symbol"] = symbol
@@ -83,7 +83,7 @@ func (client *BinanceClient) baseQueryCall(url string, symbol string, limit uint
 	return client.baseGetCall(url, queryParams)
 }
 
-func (client *BinanceClient) handleResponse(resp *resty.Response, err error) (api.ApiResponse, error) {
+func (client *Client) handleResponse(resp *resty.Response, err error) (api.ApiResponse, error) {
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (client *BinanceClient) handleResponse(resp *resty.Response, err error) (ap
 	return m, err
 }
 
-func (client *BinanceClient) handleMetrics(err error) {
+func (client *Client) handleMetrics(err error) {
 	if err != nil {
 		client.metrics.Inc(core.SuccessfullCalls)
 	} else {
@@ -110,7 +110,7 @@ func (client *BinanceClient) handleMetrics(err error) {
 	}
 }
 
-func (client *BinanceClient) ExchangeInfo() (*model.ExchangeInfo, error) {
+func (client *Client) ExchangeInfo() (*model.ExchangeInfo, error) {
 	resp, err := resty.R().Get(client.assembleUrl(Endpoints.ExchangeInfo))
 	if err != nil {
 		return nil, err
@@ -121,15 +121,15 @@ func (client *BinanceClient) ExchangeInfo() (*model.ExchangeInfo, error) {
 	return &exchangeInfo, err
 }
 
-func (client *BinanceClient) OrderBook(symbol string, limit uint32) (api.ApiResponse, error) {
+func (client *Client) OrderBook(symbol string, limit uint32) (api.ApiResponse, error) {
 	return client.baseQueryCall(Endpoints.OrderBook, symbol, limit)
 }
 
-func (client *BinanceClient) OrderBookTicker(symbol string) (api.ApiResponse, error) {
+func (client *Client) OrderBookTicker(symbol string) (api.ApiResponse, error) {
 	return client.baseQueryCall(Endpoints.OrderBookTicker, symbol, 0)
 }
 
-func (client *BinanceClient) AggregateTrades(
+func (client *Client) AggregateTrades(
 	symbol string,
 	limit uint32,
 	fromId uint64,
@@ -145,7 +145,7 @@ func (client *BinanceClient) AggregateTrades(
 	})
 }
 
-func (client *BinanceClient) HistoricalTrades(
+func (client *Client) HistoricalTrades(
 	symbol string,
 	limit uint32,
 	fromId uint64) (api.ApiResponse, error) {
@@ -157,11 +157,11 @@ func (client *BinanceClient) HistoricalTrades(
 	})
 }
 
-func (client *BinanceClient) Trades(symbol string, limit uint32) (api.ApiResponse, error) {
+func (client *Client) Trades(symbol string, limit uint32) (api.ApiResponse, error) {
 	return client.baseQueryCall(Endpoints.Trades, symbol, limit)
 }
 
-func (client *BinanceClient) Candlesticks(symbol string,
+func (client *Client) Candlesticks(symbol string,
 	limit uint32,
 	interval string,
 	startTime uint64,
@@ -176,20 +176,20 @@ func (client *BinanceClient) Candlesticks(symbol string,
 	})
 }
 
-func (client *BinanceClient) Ticker24h(symbol string) (api.ApiResponse, error) {
+func (client *Client) Ticker24h(symbol string) (api.ApiResponse, error) {
 	return client.baseGetCall(Endpoints.Ticker24, map[string]string{
 		"symbol": symbol,
 	})
 }
 
-func (client *BinanceClient) TickerPrice(symbol string) (api.ApiResponse, error) {
+func (client *Client) TickerPrice(symbol string) (api.ApiResponse, error) {
 	return client.baseGetCall(Endpoints.TickerPrice, map[string]string{
 		"symbol": symbol,
 	})
 }
 
 // TODO implement
-func (client *BinanceClient) NewOrder(symbol string) (api.ApiResponse, error) {
+func (client *Client) NewOrder(symbol string) (api.ApiResponse, error) {
 	return client.baseGetCall(Endpoints.TickerPrice, map[string]string{
 		"symbol": symbol,
 	})

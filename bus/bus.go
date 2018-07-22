@@ -1,48 +1,46 @@
-package binance
+package bus
 
 import (
 	"github.com/google/uuid"
-	"github.com/ppincak/rysen/core"
 	log "github.com/sirupsen/logrus"
 )
 
-// TODO move to common ?
-const BinanceBusBufferSize = 50
+const BusBufferSize = 50
 
 type uuidMap map[string]*busEventContainer
 type topicMap map[string]uuidMap
 
 type busEventContainer struct {
 	uuid string
-	outc chan *core.BusEvent
+	outc chan *BusEvent
 }
 
-type BinanceBus struct {
+type Bus struct {
 	topics topicMap
 	uuids  map[string]string
-	eventc chan *core.BusEvent
-	subc   chan *core.BusSuscriptionEvent
+	eventc chan *BusEvent
+	subc   chan *BusSuscriptionEvent
 	unsubc chan string
 	stopc  chan struct{}
 }
 
-func NewBinanceBus() *BinanceBus {
-	return &BinanceBus{
+func NewBus() *Bus {
+	return &Bus{
 		topics: make(topicMap),
 		uuids:  make(map[string]string),
-		eventc: make(chan *core.BusEvent, BinanceBusBufferSize),
-		subc:   make(chan *core.BusSuscriptionEvent),
+		eventc: make(chan *BusEvent, BusBufferSize),
+		subc:   make(chan *BusSuscriptionEvent),
 		unsubc: make(chan string),
 		stopc:  make(chan struct{}),
 	}
 }
 
-func (bus *BinanceBus) clean() {
+func (bus *Bus) clean() {
 	close(bus.stopc)
 	close(bus.eventc)
 }
 
-func (bus *BinanceBus) subscribe(subEvent *core.BusSuscriptionEvent) {
+func (bus *Bus) subscribe(subEvent *BusSuscriptionEvent) {
 	var subs uuidMap
 	if val, ok := bus.topics[subEvent.Topic]; ok {
 		subs = val
@@ -60,23 +58,23 @@ func (bus *BinanceBus) subscribe(subEvent *core.BusSuscriptionEvent) {
 	bus.topics[subEvent.Topic] = subs
 }
 
-func (bus *BinanceBus) unsubscribe(uuid string) {
+func (bus *Bus) unsubscribe(uuid string) {
 	if topic, ok := bus.uuids[uuid]; ok {
 		delete(bus.uuids, uuid)
 		delete(bus.topics, topic)
 	}
 }
 
-func (bus *BinanceBus) Subscribe(topic string, outc chan *core.BusEvent) *core.BusSubscription {
+func (bus *Bus) Subscribe(topic string, outc chan *BusEvent) *BusSubscription {
 	uuid := uuid.New().String()
 
-	bus.subc <- &core.BusSuscriptionEvent{
+	bus.subc <- &BusSuscriptionEvent{
 		Topic: topic,
 		Uuid:  uuid,
 		Outc:  outc,
 	}
 
-	return &core.BusSubscription{
+	return &BusSubscription{
 		Uuid: uuid,
 		Cancel: func() {
 			bus.unsubc <- uuid
@@ -84,18 +82,18 @@ func (bus *BinanceBus) Subscribe(topic string, outc chan *core.BusEvent) *core.B
 	}
 }
 
-func (bus *BinanceBus) Unsubscribe(uuid string) {
+func (bus *Bus) Unsubscribe(uuid string) {
 	bus.unsubc <- uuid
 }
 
-func (bus *BinanceBus) Publish(topic string, message interface{}) {
-	bus.eventc <- &core.BusEvent{
+func (bus *Bus) Publish(topic string, message interface{}) {
+	bus.eventc <- &BusEvent{
 		Topic:   topic,
 		Message: message,
 	}
 }
 
-func (bus *BinanceBus) Start() {
+func (bus *Bus) Start() {
 	defer bus.clean()
 
 	for {
@@ -111,12 +109,12 @@ func (bus *BinanceBus) Start() {
 		case uuid := <-bus.unsubc:
 			bus.unsubscribe(uuid)
 		case <-bus.stopc:
-			log.Infof("Stopping Binance message bus")
+			log.Infof("Stopping message bus")
 			return
 		}
 	}
 }
 
-func (bus *BinanceBus) Stop() {
+func (bus *Bus) Stop() {
 	bus.stopc <- struct{}{}
 }

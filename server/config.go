@@ -4,10 +4,10 @@ const (
 	DefaultPort = 8000
 )
 
-type ServerConfig struct {
+type Config struct {
 	Port int
 }
 
-var DefaultServerConfig *ServerConfig = &ServerConfig{
+var DefaultConfig *Config = &Config{
 	Port: DefaultPort,
 }

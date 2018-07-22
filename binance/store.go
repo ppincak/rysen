@@ -5,17 +5,17 @@ import (
 	"github.com/ppincak/rysen/store"
 )
 
-type BinanceStore struct {
+type Store struct {
 	*store.Store
 }
 
-func NewBinanceStore() *BinanceStore {
-	return &BinanceStore{
+func NewStore() *Store {
+	return &Store{
 		Store: store.NewStore(),
 	}
 }
 
-func (store *BinanceStore) Initialize(client *BinanceClient) error {
+func (store *Store) Initialize(client *Client) error {
 	info, err := client.ExchangeInfo()
 	if err != nil {
 		return api.NewError("Failed to initialize BinanceStore")

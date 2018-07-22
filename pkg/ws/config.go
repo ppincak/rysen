@@ -14,7 +14,7 @@ const (
 	PingWait        = time.Second - (PongWait / 10)
 )
 
-type WsConfig struct {
+type Config struct {
 	Port            int           `json:"port"`
 	ReadBufferSize  int           `json:"readBufferSize"`
 	WriteBufferSize int           `json:"writeBufferSize"`
@@ -25,7 +25,7 @@ type WsConfig struct {
 	PongWait        time.Duration `json:"pongWait"`
 }
 
-var DefaultConfig = &WsConfig{
+var DefaultConfig = &Config{
 	ReadBufferSize:  ReadBufferSize,
 	WriteBufferSize: WriteBufferSize,
 	MaxMessageSize:  MaxMessageSize,

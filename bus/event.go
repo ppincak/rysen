@@ -1,11 +1,4 @@
-package core
-
-type Bus interface {
-	// Subscribe to topic with channel
-	Subscribe(topic string, outc chan *BusEvent) *BusSubscription
-	// Unsubscribe from topic with channel
-	Unsubscribe(uuid string)
-}
+package bus
 
 // Event which us sent through implementation of Bus interface
 type BusEvent struct {
