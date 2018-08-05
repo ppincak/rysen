@@ -45,14 +45,14 @@ func (client *Client) assembleUrl(url string) string {
 
 func (client *Client) addApiKey(request *resty.Request) *resty.Request {
 	if client.secret == nil {
-		panic("Api secrets are mssing is missing")
+		panic("Api secrets are missing")
 	}
 	return request.SetHeader("X-MBX-APIKEY", client.secret.ApiKey)
 }
 
 func (client *Client) signQuery(request *resty.Request, value []byte) *resty.Request {
 	if client.secret == nil {
-		panic("Api secrets are mssing is missing")
+		panic("Api secrets are missing")
 	}
 	mac := hmac.New(sha256.New, []byte(client.secret.SecretKey))
 	mac.Write(value)
@@ -183,13 +183,6 @@ func (client *Client) Ticker24h(symbol string) (api.ApiResponse, error) {
 }
 
 func (client *Client) TickerPrice(symbol string) (api.ApiResponse, error) {
-	return client.baseGetCall(Endpoints.TickerPrice, map[string]string{
-		"symbol": symbol,
-	})
-}
-
-// TODO implement
-func (client *Client) NewOrder(symbol string) (api.ApiResponse, error) {
 	return client.baseGetCall(Endpoints.TickerPrice, map[string]string{
 		"symbol": symbol,
 	})

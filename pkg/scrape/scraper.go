@@ -1,4 +1,4 @@
-package binance
+package scrape
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//
+// Scrapes from binance
 type Scraper struct {
 	topic   string
 	symbols []string
@@ -32,6 +32,22 @@ func NewScraper(topic string,
 		ticker:  time.NewTicker(core.ToDurationMillis(interval)),
 		stopc:   make(chan struct{}),
 	}
+}
+
+// Return scraper topic
+func (scraper *Scraper) Topic() string {
+	return scraper.topic
+}
+
+// Return scraper symbols
+func (scraper *Scraper) Symbols() []string {
+	return scraper.symbols
+}
+
+// TODO implement
+// Return ticker interval
+func (scraper *Scraper) Interval() int64 {
+	return 0
 }
 
 // Start the scrapper

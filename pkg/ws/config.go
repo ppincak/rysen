@@ -7,11 +7,11 @@ import (
 const (
 	ReadBufferSize  = 1024
 	WriteBufferSize = 1024
-	MaxMessageSize  = 1024 * 20
-	ReadWait        = time.Second
+	MaxMessageSize  = 1024 * 50
+	ReadWait        = time.Hour
 	WriteWait       = time.Second / 2
 	PongWait        = time.Second * 60
-	PingWait        = time.Second - (PongWait / 10)
+	PingWait        = (time.Second * 60) - (PongWait / 10)
 )
 
 type Config struct {

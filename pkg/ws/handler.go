@@ -4,21 +4,24 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/ppincak/rysen/api"
 
-	"github.com/ppincak/rysen/core"
 	"github.com/ppincak/rysen/monitor"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
 )
 
+type OnRemoveCallback func(*Client)
+
 type Handler struct {
-	clients  map[string]*Client
-	config   *Config
-	lock     *sync.RWMutex
-	upgrader *websocket.Upgrader
-	metrics  *core.WsMetrics
+	clients           map[string]*Client
+	config            *Config
+	lock              *sync.RWMutex
+	upgrader          *websocket.Upgrader
+	metrics           *WsMetrics
+	onRemoveCallbacks map[string]OnRemoveCallback
 }
 
 func NewHandler(config *Config) *Handler {
@@ -34,13 +37,14 @@ func NewHandler(config *Config) *Handler {
 			ReadBufferSize:  config.ReadBufferSize,
 			WriteBufferSize: config.WriteBufferSize,
 		},
-		metrics: core.NewWsMetrics(),
+		metrics:           NewWsMetrics(),
+		onRemoveCallbacks: make(map[string]OnRemoveCallback),
 	}
 }
 
 func (client *Handler) Statistics() []*monitor.Statistic {
 	return []*monitor.Statistic{
-		client.metrics.ToStatistic("wshandlerStatistics"),
+		client.metrics.ToStatistic("wsHandlerStatistics"),
 	}
 }
 
@@ -54,12 +58,41 @@ func (handler *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) (
 	client := NewClient(ws, handler)
 	go client.readPump()
 	go client.writePump()
+	// blocks till writepump isn't started
+	client.sendConnectPacket()
 
 	handler.addClient(client)
+	handler.metrics.Connects.Inc()
 
 	log.Infof("Client [%s] connection established", client.uuid)
 
 	return client, nil
+}
+
+func (handler *Handler) GetClient(sessionId string) *Client {
+	defer handler.lock.RUnlock()
+	handler.lock.RLock()
+
+	if client, ok := handler.clients[sessionId]; ok {
+		return client
+	}
+	return nil
+}
+
+func (handler *Handler) OnRemove(callback OnRemoveCallback) string {
+	defer handler.lock.Unlock()
+	handler.lock.Lock()
+
+	uuid := uuid.New().String()
+	handler.onRemoveCallbacks[uuid] = callback
+	return uuid
+}
+
+func (handler *Handler) runOnRemove(client *Client) {
+	// Note: add locks here ??
+	for _, callback := range handler.onRemoveCallbacks {
+		callback(client)
+	}
 }
 
 func (handler *Handler) addClient(client *Client) {
@@ -67,8 +100,9 @@ func (handler *Handler) addClient(client *Client) {
 	handler.lock.Lock()
 
 	handler.clients[client.uuid] = client
+	handler.metrics.Clients.Inc()
 
-	log.Infof("Client [%s] added to handler collection")
+	log.Infof("Client [%s] added to handler collection", client.uuid)
 }
 
 func (handler *Handler) removeClient(client *Client) {
@@ -77,7 +111,10 @@ func (handler *Handler) removeClient(client *Client) {
 
 	if _, ok := handler.clients[client.uuid]; ok {
 		delete(handler.clients, client.uuid)
+		handler.metrics.Clients.Dec()
 
-		log.Infof("Client [%s] removed from handler collection")
+		go handler.runOnRemove(client)
+
+		log.Infof("Client [%s] removed from handler collection", client.uuid)
 	}
 }

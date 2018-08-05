@@ -4,11 +4,6 @@ import (
 	"time"
 )
 
-type Limit struct {
-	Interval time.Duration
-	Limit    int64
-}
-
 // Converts string interval expression to Duration
 func ToDuration(interval string) time.Duration {
 	switch interval {

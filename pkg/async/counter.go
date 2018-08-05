@@ -24,6 +24,10 @@ func (counter *Counter) Inc() {
 	counter.Add(1)
 }
 
+func (counter *Counter) Dec() {
+	counter.Add(-1)
+}
+
 func (counter *Counter) Reset() {
 	atomic.StoreInt64(&counter.value, 0)
 }

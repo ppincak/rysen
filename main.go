@@ -3,8 +3,10 @@ package main
 import (
 	"github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/monitor"
+	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/pkg/ws"
 	"github.com/ppincak/rysen/server"
+	"github.com/ppincak/rysen/services"
 
 	"github.com/ppincak/rysen/core"
 
@@ -17,27 +19,8 @@ func main() {
 	log.SetFormatter(&log.JSONFormatter{})
 
 	client := binance.NewClient("https://api.binance.com", nil)
-
 	apiCounter := core.NewApiCallCounter(10000, 10000)
 	go apiCounter.Start()
-	// eos := binance.NewScraper("eos", []string{"EOSBTC"}, caller.ScrapePrice, 1000)
-	// go eos.Start()
-	// ada := binance.NewScraper("ada", []string{"ADABTC"}, caller.ScrapePrice, 1000)
-	// go ada.Start()
-
-	// outc := make(chan *core.BusEvent)
-	// bus.Subscribe("eos", outc)
-	// bus.Subscribe("ada", outc)
-
-	// go func(outc chan *core.BusEvent) {
-	// 	fmt.Println("running")
-	// 	for {
-	// 		select {
-	// 		case msg := <-outc:
-	// 			fmt.Println(msg.Message)
-	// 		}
-	// 	}
-	// }(outc)
 
 	store := binance.NewStore()
 	err := store.Initialize(client)
@@ -53,6 +36,8 @@ func main() {
 
 	wsHandler := ws.NewHandler(nil)
 
+	feedService := services.NewFeedService(bus, wsHandler)
+
 	monitor := monitor.NewMonitor()
 	monitor.Register(client)
 	monitor.Register(wsHandler)
@@ -63,10 +48,19 @@ func main() {
 			Caller: caller,
 			Store:  store,
 		},
-		Bus:       bus,
-		Monitor:   monitor,
-		WsHandler: wsHandler,
+		Bus:         bus,
+		FeedService: feedService,
+		Monitor:     monitor,
+		WsHandler:   wsHandler,
 	}
+
+	eos := scrape.NewScraper("eos", []string{"EOSBTC"}, caller.ScrapePrice, 1000)
+	go eos.Start()
+	ada := scrape.NewScraper("ada", []string{"ADABTC"}, caller.ScrapePrice, 1000)
+	go ada.Start()
+
+	feedService.Create("eosPrice", eos)
+	feedService.Create("adaPrice", ada)
 
 	s := server.NewServer(app, nil)
 	s.Run()
