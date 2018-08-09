@@ -1,7 +1,12 @@
 package main
 
 import (
-	"github.com/ppincak/rysen/bus"
+	"fmt"
+
+	"github.com/ppincak/rysen/api"
+
+	"github.com/ppincak/rysen/binance/data"
+	b "github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/monitor"
 	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/pkg/ws"
@@ -29,7 +34,7 @@ func main() {
 		return
 	}
 
-	bus := bus.NewBus()
+	bus := b.NewBus()
 	go bus.Start()
 
 	caller := binance.NewCaller(client, bus, apiCounter)
@@ -59,8 +64,28 @@ func main() {
 	ada := scrape.NewScraper("ada", []string{"ADABTC"}, caller.ScrapePrice, 1000)
 	go ada.Start()
 
-	feedService.Create("eosPrice", eos)
-	feedService.Create("adaPrice", ada)
+	feedService.Create(services.NewFeedMetadata("eos", "eosPrice", ""))
+	feedService.Create(services.NewFeedMetadata("ada", "adaPrice", ""))
+
+	aggregator := b.NewAggregator("eos", "aggregate", bus, func(event *b.BusEvent) (interface{}, error) {
+		if assertion, ok := event.Message.(*scrape.CallerEvent); ok {
+			return assertion.Data, nil
+		} else {
+			return nil, api.NewError("")
+		}
+	}, data.AggregatePrice, data.AggretateTill(5))
+	go aggregator.Start()
+
+	outc := make(chan *b.BusEvent)
+	bus.Subscribe("eos-aggregate", outc)
+	go func() {
+		for {
+			select {
+			case msg := <-outc:
+				fmt.Println(msg.Message.(*b.AggregationResult))
+			}
+		}
+	}()
 
 	s := server.NewServer(app, nil)
 	s.Run()

@@ -21,7 +21,7 @@ func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(RoutesV1.symbols, router.getSymbols)
 	engine.GET(RoutesV1.config, router.getConfig)
 	engine.GET(RoutesV1.statistics, router.getStatistics)
-	engine.GET(RoutesV1.feedList, router.getFeedList)
+	engine.GET(RoutesV1.feeds, router.getFeeds)
 	engine.POST(RoutesV1.subscribeToFeed, router.postSubscribeToFeed)
 }
 
@@ -50,7 +50,7 @@ func (router *Router) postSubscribeToFeed(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
-func (router *Router) getFeedList(context *gin.Context) {
+func (router *Router) getFeeds(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.FeedService.GetList())
 }
 

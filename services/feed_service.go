@@ -6,7 +6,6 @@ import (
 	"github.com/ppincak/rysen/pkg/ws"
 
 	"github.com/ppincak/rysen/bus"
-	"github.com/ppincak/rysen/pkg/scrape"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -27,15 +26,15 @@ func NewFeedService(bus *bus.Bus, handler *ws.Handler) *FeedService {
 	}
 }
 
-func (service *FeedService) Create(name string, scraper *scrape.Scraper) *Feed {
+func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
-	feed := NewFeed(service.bus, service.handler, name, scraper)
+	feed := NewFeed(metadata, service.bus, service.handler)
 	log.Infof("Feed [%s] created", feed.Name)
 
 	feed.Init()
-	service.feeds[name] = feed
+	service.feeds[metadata.Name] = feed
 
 	return feed
 }
@@ -49,11 +48,11 @@ func (service *FeedService) SubscribeTo(name string, client *ws.Client) {
 	}
 }
 
-func (service *FeedService) GetList() []*Feed {
-	list := make([]*Feed, len(service.feeds))
+func (service *FeedService) GetList() []*FeedMetadata {
+	list := make([]*FeedMetadata, len(service.feeds))
 	i := 0
 	for _, value := range service.feeds {
-		list[i] = value
+		list[i] = value.FeedMetadata
 		i++
 	}
 	return list

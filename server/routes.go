@@ -5,7 +5,7 @@ type Routes struct {
 	config            string
 	statistics        string
 	live              string
-	feedList          string
+	feeds             string
 	feedSubscriptions string
 	subscribeToFeed   string
 }
@@ -16,7 +16,7 @@ func newRoutesV1() *Routes {
 		config:            "/v1/config",
 		statistics:        "/v1/statistics",
 		live:              "v1/live",
-		feedList:          "v1/feeds",
+		feeds:             "v1/feeds",
 		feedSubscriptions: "v1/feeds/subscriptions",
 		subscribeToFeed:   "v1/feeds/subscribe",
 	}

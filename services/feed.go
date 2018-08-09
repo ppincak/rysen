@@ -11,8 +11,8 @@ import (
 )
 
 type Feed struct {
-	Name        string   `json:"name"`
-	Symbols     []string `json:"symbols"`
+	*FeedMetadata
+
 	bus         *bus.Bus
 	clients     map[string]*ws.Client
 	eventsc     chan *bus.BusEvent
@@ -22,23 +22,20 @@ type Feed struct {
 	lock        *sync.RWMutex
 	transformer *bus.Transformer
 	sub         *bus.BusSubscription
-	scraper     *scrape.Scraper
 }
 
-func NewFeed(b *bus.Bus, handler *ws.Handler, name string, scraper *scrape.Scraper) *Feed {
+func NewFeed(metadata *FeedMetadata, b *bus.Bus, handler *ws.Handler) *Feed {
 	return &Feed{
-		Name:     name,
-		Symbols:  scraper.Symbols(),
-		bus:      b,
-		clients:  make(map[string]*ws.Client),
-		eventsc:  make(chan *bus.BusEvent),
-		handler:  handler,
-		interval: scraper.Interval(),
-		lock:     new(sync.RWMutex),
-		scraper:  scraper,
+		FeedMetadata: metadata,
+		bus:          b,
+		clients:      make(map[string]*ws.Client),
+		eventsc:      make(chan *bus.BusEvent),
+		handler:      handler,
+		lock:         new(sync.RWMutex),
 	}
 }
 
+// Transfor bus message to message for the feed
 func (feed *Feed) transform(event *bus.BusEvent) {
 	defer feed.lock.RUnlock()
 	feed.lock.RLock()
@@ -47,7 +44,7 @@ func (feed *Feed) transform(event *bus.BusEvent) {
 		go func(client *ws.Client, name string, message interface{}) {
 			switch message.(type) {
 			case *scrape.CallerEvent:
-				client.WriteEvent(name, message.(scrape.CallerEvent).Data)
+				client.WriteEvent(name, message.(*scrape.CallerEvent).Data)
 			}
 
 		}(client, feed.Name, event.Message)
@@ -80,12 +77,10 @@ func (feed *Feed) unsubscribe(client *ws.Client) {
 
 // Initialize the feed
 func (feed *Feed) Init() {
-	// Note: add locks ?
-
 	feed.transformer = bus.NewTransformer(feed.eventsc, feed.transform)
 	go feed.transformer.Start()
 
-	feed.sub = feed.bus.Subscribe(feed.scraper.Topic(), feed.eventsc)
+	feed.sub = feed.bus.Subscribe(feed.Topic, feed.eventsc)
 	feed.handlerUuid = feed.handler.OnRemove(feed.unsubscribe)
 
 	log.Infof("Feed [%s] initialized", feed.Name)
@@ -93,7 +88,8 @@ func (feed *Feed) Init() {
 
 // Destroy the feed
 func (feed *Feed) Destroy() {
-	// Note: add locks ?
+	defer feed.lock.Unlock()
+	feed.lock.Lock()
 
 	feed.sub.Cancel()
 	feed.transformer.Stop()

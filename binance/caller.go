@@ -7,6 +7,8 @@ import (
 	"github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/core"
 	"github.com/ppincak/rysen/pkg/scrape"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Caller struct {
@@ -41,6 +43,8 @@ func (caller *Caller) call(topic string, symbols []string, eventType scrape.Call
 					Data:      resp,
 					Timestamp: t.UnixNano(),
 				})
+			} else {
+				log.Errorf("error during scraping call")
 			}
 		}(caller.client, symbol)
 	}

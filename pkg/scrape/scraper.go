@@ -9,12 +9,13 @@ import (
 
 // Scrapes from binance
 type Scraper struct {
-	topic   string
-	symbols []string
-	fun     CallerFunc
-	ticker  *time.Ticker
-	outc    chan *CallerEvent
-	stopc   chan struct{}
+	topic    string
+	symbols  []string
+	fun      CallerFunc
+	ticker   *time.Ticker
+	interval int64
+	outc     chan *CallerEvent
+	stopc    chan struct{}
 }
 
 var _ core.Worker = (*Scraper)(nil)
@@ -26,11 +27,12 @@ func NewScraper(topic string,
 	interval int64) *Scraper {
 
 	return &Scraper{
-		topic:   topic,
-		symbols: symbols,
-		fun:     fun,
-		ticker:  time.NewTicker(core.ToDurationMillis(interval)),
-		stopc:   make(chan struct{}),
+		topic:    topic,
+		symbols:  symbols,
+		fun:      fun,
+		ticker:   time.NewTicker(core.ToDurationMillis(interval)),
+		interval: interval,
+		stopc:    make(chan struct{}),
 	}
 }
 
@@ -44,20 +46,22 @@ func (scraper *Scraper) Symbols() []string {
 	return scraper.symbols
 }
 
-// TODO implement
 // Return ticker interval
 func (scraper *Scraper) Interval() int64 {
-	return 0
+	return scraper.interval
 }
 
 // Start the scrapper
 func (scraper *Scraper) Start() {
+	defer func() {
+		log.Infof("Worker for topic: [%s] stopped", scraper.topic)
+	}()
+
 	for {
 		select {
 		case <-scraper.ticker.C:
 			scraper.fun(scraper.topic, scraper.symbols)
 		case <-scraper.stopc:
-			log.Infof("Worker for topic: %s stopped", scraper.topic)
 			return
 		}
 	}
