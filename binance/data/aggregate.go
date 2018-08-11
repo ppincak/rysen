@@ -18,6 +18,11 @@ func AggregatePrice(message interface{}) (interface{}, error) {
 	return nil, api.NewError("Invalid assertion")
 }
 
+func AggregateOrders(message interface{}) (interface{}, error) {
+	return nil, nil
+}
+
+// TODO: move this to some common package
 func AggretateTill(size int) bus.AggregationCondition {
 	return func(from int64, to int64, s int) bool {
 		return size == s

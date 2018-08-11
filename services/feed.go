@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/ppincak/rysen/bus"
-	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/pkg/ws"
 
 	log "github.com/sirupsen/logrus"
@@ -13,25 +12,40 @@ import (
 type Feed struct {
 	*FeedMetadata
 
-	bus         *bus.Bus
-	clients     map[string]*ws.Client
-	eventsc     chan *bus.BusEvent
-	handler     *ws.Handler
-	handlerUuid string
-	interval    int64
-	lock        *sync.RWMutex
+	// map of clients connected to the feed
+	clients map[string]*ws.Client
+	// bus event used for subscription to bus
+	eventsc chan *bus.BusEvent
+	// bus
+	bus *bus.Bus
+	// ws handler
+	handler *ws.Handler
+	// uuid of the on remove handler
+	onRemoveUuid string
+	// mutex
+	lock *sync.RWMutex
+	// transformer
 	transformer *bus.Transformer
-	sub         *bus.BusSubscription
+	// transformation function
+	transformFunc bus.TransformFunc
+	// subscription to bus
+	sub *bus.BusSubscription
 }
 
-func NewFeed(metadata *FeedMetadata, b *bus.Bus, handler *ws.Handler) *Feed {
+// Create Feed
+func NewFeed(metadata *FeedMetadata, b *bus.Bus, handler *ws.Handler, transformFunc bus.TransformFunc) *Feed {
+	if transformFunc == nil {
+		transformFunc = TransformForWsClient
+	}
+
 	return &Feed{
-		FeedMetadata: metadata,
-		bus:          b,
-		clients:      make(map[string]*ws.Client),
-		eventsc:      make(chan *bus.BusEvent),
-		handler:      handler,
-		lock:         new(sync.RWMutex),
+		FeedMetadata:  metadata,
+		bus:           b,
+		clients:       make(map[string]*ws.Client),
+		eventsc:       make(chan *bus.BusEvent),
+		handler:       handler,
+		lock:          new(sync.RWMutex),
+		transformFunc: transformFunc,
 	}
 }
 
@@ -41,13 +55,12 @@ func (feed *Feed) transform(event *bus.BusEvent) {
 	feed.lock.RLock()
 
 	for _, client := range feed.clients {
-		go func(client *ws.Client, name string, message interface{}) {
-			switch message.(type) {
-			case *scrape.CallerEvent:
-				client.WriteEvent(name, message.(*scrape.CallerEvent).Data)
+		// should be async
+		go func(client *ws.Client, name string, message interface{}, transformFunc bus.TransformFunc) {
+			if transformed, err := transformFunc(message); err == nil {
+				client.WriteEvent(name, transformed)
 			}
-
-		}(client, feed.Name, event.Message)
+		}(client, feed.Name, event.Message, feed.transformFunc)
 	}
 }
 
@@ -81,7 +94,7 @@ func (feed *Feed) Init() {
 	go feed.transformer.Start()
 
 	feed.sub = feed.bus.Subscribe(feed.Topic, feed.eventsc)
-	feed.handlerUuid = feed.handler.OnRemove(feed.unsubscribe)
+	feed.onRemoveUuid = feed.handler.OnRemove(feed.unsubscribe)
 
 	log.Infof("Feed [%s] initialized", feed.Name)
 }

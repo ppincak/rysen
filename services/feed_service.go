@@ -17,6 +17,7 @@ type FeedService struct {
 	lock    *sync.RWMutex
 }
 
+// Create feed service
 func NewFeedService(bus *bus.Bus, handler *ws.Handler) *FeedService {
 	return &FeedService{
 		bus:     bus,
@@ -30,7 +31,7 @@ func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
-	feed := NewFeed(metadata, service.bus, service.handler)
+	feed := NewFeed(metadata, service.bus, service.handler, nil)
 	log.Infof("Feed [%s] created", feed.Name)
 
 	feed.Init()
@@ -39,13 +40,14 @@ func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
 	return feed
 }
 
-func (service *FeedService) SubscribeTo(name string, client *ws.Client) {
+func (service *FeedService) SubscribeTo(name string, client *ws.Client) error {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
 	if feed, ok := service.feeds[name]; ok {
 		feed.subscribe(client)
 	}
+	return nil
 }
 
 func (service *FeedService) GetList() []*FeedMetadata {

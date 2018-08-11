@@ -10,12 +10,14 @@ type Router struct {
 	app *App
 }
 
+// Create Router
 func NewRouter(app *App) *Router {
 	return &Router{
 		app: app,
 	}
 }
 
+// Initialize Router
 func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(RoutesV1.live, router.getLive)
 	engine.GET(RoutesV1.symbols, router.getSymbols)
@@ -42,7 +44,7 @@ func (router *Router) postSubscribeToFeed(context *gin.Context) {
 	}
 	client := router.app.WsHandler.GetClient(clientId)
 	if client == nil {
-		context.Status(http.StatusBadRequest)
+		context.JSON(http.StatusBadRequest, NewApiError("Invalid clientId", ""))
 		return
 	}
 	router.app.FeedService.SubscribeTo(feed, client)
@@ -51,6 +53,14 @@ func (router *Router) postSubscribeToFeed(context *gin.Context) {
 }
 
 func (router *Router) getFeeds(context *gin.Context) {
+	context.JSON(http.StatusOK, router.app.FeedService.GetList())
+}
+
+func (router *Router) postFeed(context *gin.Context) {
+	context.JSON(http.StatusOK, router.app.FeedService.GetList())
+}
+
+func (router *Router) deleteFeed(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.FeedService.GetList())
 }
 

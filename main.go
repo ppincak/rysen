@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/ppincak/rysen/api"
 
 	"github.com/ppincak/rysen/binance/data"
@@ -64,8 +62,12 @@ func main() {
 	ada := scrape.NewScraper("ada", []string{"ADABTC"}, caller.ScrapePrice, 1000)
 	go ada.Start()
 
+	eosTrades := scrape.NewScraper("eos/trades", []string{"EOSBTC"}, caller.ScrapeOrders, 1000)
+	go eosTrades.Start()
+
 	feedService.Create(services.NewFeedMetadata("eos", "eosPrice", ""))
 	feedService.Create(services.NewFeedMetadata("ada", "adaPrice", ""))
+	feedService.Create(services.NewFeedMetadata("eos/trades", "eosTrades", ""))
 
 	aggregator := b.NewAggregator("eos", "aggregate", bus, func(event *b.BusEvent) (interface{}, error) {
 		if assertion, ok := event.Message.(*scrape.CallerEvent); ok {
@@ -76,16 +78,7 @@ func main() {
 	}, data.AggregatePrice, data.AggretateTill(5))
 	go aggregator.Start()
 
-	outc := make(chan *b.BusEvent)
-	bus.Subscribe("eos-aggregate", outc)
-	go func() {
-		for {
-			select {
-			case msg := <-outc:
-				fmt.Println(msg.Message.(*b.AggregationResult))
-			}
-		}
-	}()
+	feedService.Create(services.NewFeedMetadata("eos-aggregate", "eosAggregate", ""))
 
 	s := server.NewServer(app, nil)
 	s.Run()

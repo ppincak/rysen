@@ -24,12 +24,11 @@ type Aggregator struct {
 	stopc                chan struct{}
 	list                 *collections.SliceList
 	processFunc          ProcessFunc
-	transformFunc        TransformFunc
+	aggregationFunc      AggregationFunc
 	aggregationCondition AggregationCondition
 	from                 int64
 }
 
-type TransformFunc func(interface{}) (interface{}, error)
 type ProcessFunc func(event *BusEvent) (interface{}, error)
 type AggregationCondition func(from int64, to int64, size int) bool
 
@@ -39,7 +38,7 @@ func NewAggregator(
 	suffix string,
 	bus *Bus,
 	processFunc ProcessFunc,
-	transformFunc TransformFunc,
+	aggregationFunc AggregationFunc,
 	aggregationCondition AggregationCondition) *Aggregator {
 
 	return &Aggregator{
@@ -49,7 +48,7 @@ func NewAggregator(
 		stopc:                make(chan struct{}),
 		list:                 collections.NewSliceList(10),
 		processFunc:          processFunc,
-		transformFunc:        transformFunc,
+		aggregationFunc:      aggregationFunc,
 		aggregationCondition: aggregationCondition,
 	}
 }
@@ -59,20 +58,20 @@ func (aggregator *Aggregator) Start() {
 	defer func() {
 		aggregator.sub.Cancel()
 
-		log.Infof("Aggregator stopped")
+		log.Infof("Aggregator stopped  for topic [%s]", aggregator.topic)
 	}()
 
 	eventc := make(chan *BusEvent)
 	aggregator.eventc = eventc
 	aggregator.sub = aggregator.bus.Subscribe(aggregator.topic, eventc)
 
-	log.Infof("Stated aggregator")
+	log.Infof("Stated aggregator for topic [%s]", aggregator.topic)
 
 	for {
 		select {
 		case event := <-aggregator.eventc:
 			if aggregator.list.IsEmpty() {
-				aggregator.from = time.Now().UnixNano()
+				aggregator.from = time.Now().Unix()
 			}
 			to := time.Now().Unix()
 
@@ -83,7 +82,7 @@ func (aggregator *Aggregator) Start() {
 			}
 
 			if aggregator.aggregationCondition(aggregator.from, to, aggregator.list.Size()) {
-				result, err := aggregator.transformFunc(aggregator.list.EntriesCopy())
+				result, err := aggregator.aggregationFunc(aggregator.list.EntriesCopy())
 				if err == nil {
 					aggregator.bus.Publish(aggregator.resultTopic, &AggregationResult{
 						Result: result,

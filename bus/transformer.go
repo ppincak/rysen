@@ -5,28 +5,29 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// TODO: Rename to interceptor func
-type TransformFuc func(event *BusEvent)
+// TODO should be renamed to subscriber !!
+
+type BusEventHandler func(event *BusEvent)
 
 type Transformer struct {
-	eventc        chan *BusEvent
-	outc          chan interface{}
-	stopc         chan struct{}
-	transformFunc TransformFuc
+	eventc  chan *BusEvent
+	outc    chan interface{}
+	stopc   chan struct{}
+	handler BusEventHandler
 }
 
 var _ core.Worker = (*Transformer)(nil)
 
-func NewTransformer(eventc chan *BusEvent, transformFunc TransformFuc) *Transformer {
+func NewTransformer(eventc chan *BusEvent, handler BusEventHandler) *Transformer {
 	return &Transformer{
-		eventc:        eventc,
-		stopc:         make(chan struct{}),
-		transformFunc: transformFunc,
+		eventc:  eventc,
+		stopc:   make(chan struct{}),
+		handler: handler,
 	}
 }
 
-func (transformer *Transformer) transform(event *BusEvent) {
-	transformer.transformFunc(event)
+func (transformer *Transformer) handle(event *BusEvent) {
+	transformer.handler(event)
 }
 
 func (transformer *Transformer) Start() {
@@ -37,7 +38,7 @@ func (transformer *Transformer) Start() {
 	for {
 		select {
 		case event := <-transformer.eventc:
-			transformer.transform(event)
+			transformer.handle(event)
 		case <-transformer.stopc:
 			return
 		}
