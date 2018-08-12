@@ -1,6 +1,8 @@
 package aggregate
 
-import "github.com/ppincak/rysen/bus"
+import (
+	"github.com/ppincak/rysen/bus"
+)
 
 // Generic aggregation condition
 func AggretateTillSize(size int) bus.AggregationCondition {

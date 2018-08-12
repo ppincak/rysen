@@ -11,8 +11,11 @@ type Error struct {
 }
 
 func NewError(message string, args ...interface{}) Error {
+	if len(args) > 0 {
+		message = fmt.Sprintf(message, args)
+	}
 	return Error{
-		Message: fmt.Sprintf(message, args),
+		Message: message,
 	}
 }
 

@@ -61,17 +61,23 @@ func (client *Client) signQuery(request *resty.Request, value []byte) *resty.Req
 	return request.SetQueryParam("signature", string(hash))
 }
 
-func (client *Client) baseGetCall(url string, queryParams map[string]string) (api.ApiResponse, error) {
+func (client *Client) baseGetCallDefault(url string, queryParams map[string]string) (api.ApiResponse, error) {
+	var response api.ApiResponse
+	err := client.baseGetCall(url, queryParams, &response)
+	return response, err
+}
+
+func (client *Client) baseGetCall(url string, queryParams map[string]string, responseType interface{}) error {
 	resp, err := resty.R().
 		SetQueryParams(queryParams).
 		Get(client.assembleUrl(url))
 
-	apiResp, err := client.handleResponse(resp, err)
+	err = client.handleResponse(resp, responseType, err)
 	defer client.handleMetrics(err)
-	return apiResp, err
+	return err
 }
 
-func (client *Client) baseQueryCall(url string, symbol string, limit uint32) (api.ApiResponse, error) {
+func (client *Client) baseQueryCall(url string, symbol string, limit uint32, responseType interface{}) error {
 	queryParams := make(map[string]string)
 	if symbol != "" {
 		queryParams["symbol"] = symbol
@@ -80,12 +86,12 @@ func (client *Client) baseQueryCall(url string, symbol string, limit uint32) (ap
 		queryParams["limit"] = strconv.FormatUint(uint64(limit), 10)
 	}
 
-	return client.baseGetCall(url, queryParams)
+	return client.baseGetCall(url, queryParams, responseType)
 }
 
-func (client *Client) handleResponse(resp *resty.Response, err error) (api.ApiResponse, error) {
+func (client *Client) handleResponse(resp *resty.Response, responseType interface{}, err error) error {
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	switch statusCode := resp.StatusCode(); {
@@ -95,11 +101,9 @@ func (client *Client) handleResponse(resp *resty.Response, err error) (api.ApiRe
 	case statusCode > 201:
 		log.Error("Request failed with statusCode %d", resp.StatusCode())
 
-		return nil, api.NewError("Request failed with status code %d", resp.StatusCode())
+		return api.NewError("Request failed with status code %d", resp.StatusCode())
 	}
-
-	m, err := api.Unmarshall(resp.Body())
-	return m, err
+	return api.UnmarshallAs(resp.Body(), responseType)
 }
 
 func (client *Client) handleMetrics(err error) {
@@ -121,12 +125,20 @@ func (client *Client) ExchangeInfo() (*model.ExchangeInfo, error) {
 	return &exchangeInfo, err
 }
 
-func (client *Client) OrderBook(symbol string, limit uint32) (api.ApiResponse, error) {
-	return client.baseQueryCall(Endpoints.OrderBook, symbol, limit)
+func (client *Client) OrderBook(symbol string, limit uint32) (model.Model, error) {
+	var response *model.OrderBook
+
+	err := client.baseQueryCall(Endpoints.OrderBook, symbol, limit, &response)
+
+	return response, err
 }
 
 func (client *Client) OrderBookTicker(symbol string) (api.ApiResponse, error) {
-	return client.baseQueryCall(Endpoints.OrderBookTicker, symbol, 0)
+	var response api.ApiResponse
+
+	err := client.baseQueryCall(Endpoints.OrderBookTicker, symbol, 0, &response)
+
+	return response, err
 }
 
 func (client *Client) AggregateTrades(
@@ -136,13 +148,17 @@ func (client *Client) AggregateTrades(
 	startTime uint64,
 	endTime uint64) (api.ApiResponse, error) {
 
-	return client.baseGetCall(Endpoints.AggregateTrades, map[string]string{
+	var response api.ApiResponse
+
+	err := client.baseGetCall(Endpoints.AggregateTrades, map[string]string{
 		"symbol":    symbol,
 		"limit":     strconv.FormatUint(uint64(limit), 10),
 		"fromId":    strconv.FormatUint(uint64(fromId), 10),
 		"startTime": strconv.FormatUint(startTime, 10),
 		"endTime":   strconv.FormatUint(endTime, 10),
-	})
+	}, &response)
+
+	return response, err
 }
 
 func (client *Client) HistoricalTrades(
@@ -150,15 +166,23 @@ func (client *Client) HistoricalTrades(
 	limit uint32,
 	fromId uint64) (api.ApiResponse, error) {
 
-	return client.baseGetCall(Endpoints.AggregateTrades, map[string]string{
+	var response api.ApiResponse
+
+	err := client.baseGetCall(Endpoints.AggregateTrades, map[string]string{
 		"symbol": symbol,
 		"limit":  strconv.FormatUint(uint64(limit), 10),
 		"fromId": strconv.FormatUint(uint64(fromId), 10),
-	})
+	}, &response)
+
+	return response, err
 }
 
-func (client *Client) Trades(symbol string, limit uint32) (api.ApiResponse, error) {
-	return client.baseQueryCall(Endpoints.Trades, symbol, limit)
+func (client *Client) Trades(symbol string, limit uint32) (model.Model, error) {
+	var response []*model.Trade
+
+	err := client.baseQueryCall(Endpoints.Trades, symbol, limit, &response)
+
+	return response, err
 }
 
 func (client *Client) Candlesticks(symbol string,
@@ -167,23 +191,35 @@ func (client *Client) Candlesticks(symbol string,
 	startTime uint64,
 	endTime uint64) (api.ApiResponse, error) {
 
-	return client.baseGetCall(Endpoints.Candlesticks, map[string]string{
+	var response api.ApiResponse
+
+	err := client.baseGetCall(Endpoints.Candlesticks, map[string]string{
 		"symbol":    symbol,
 		"limit":     strconv.FormatUint(uint64(limit), 10),
 		"interval":  interval,
 		"startTime": strconv.FormatUint(startTime, 10),
 		"endTime":   strconv.FormatUint(endTime, 10),
-	})
+	}, &response)
+
+	return response, err
 }
 
 func (client *Client) Ticker24h(symbol string) (api.ApiResponse, error) {
-	return client.baseGetCall(Endpoints.Ticker24, map[string]string{
+	var response api.ApiResponse
+
+	err := client.baseGetCall(Endpoints.Ticker24, map[string]string{
 		"symbol": symbol,
-	})
+	}, &response)
+
+	return response, err
 }
 
-func (client *Client) TickerPrice(symbol string) (api.ApiResponse, error) {
-	return client.baseGetCall(Endpoints.TickerPrice, map[string]string{
+func (client *Client) TickerPrice(symbol string) (model.Model, error) {
+	var response *model.Price
+
+	err := client.baseGetCall(Endpoints.TickerPrice, map[string]string{
 		"symbol": symbol,
-	})
+	}, &response)
+
+	return response, err
 }
