@@ -57,10 +57,12 @@ func (router *Router) getFeeds(context *gin.Context) {
 }
 
 func (router *Router) postFeed(context *gin.Context) {
+	// Todo: implement
 	context.JSON(http.StatusOK, router.app.FeedService.GetList())
 }
 
 func (router *Router) deleteFeed(context *gin.Context) {
+	// Todo: implement
 	context.JSON(http.StatusOK, router.app.FeedService.GetList())
 }
 
@@ -68,6 +70,7 @@ func (router *Router) getSymbols(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.Binance.Store.Symbols)
 }
 
+// Convert to schema
 func (router *Router) getConfig(context *gin.Context) {
 	context.JSON(http.StatusOK, nil)
 }

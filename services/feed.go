@@ -55,7 +55,8 @@ func (feed *Feed) transform(event *bus.BusEvent) {
 	feed.lock.RLock()
 
 	for _, client := range feed.clients {
-		// should be async
+		// has to be async
+		// Note: refactor
 		go func(client *ws.Client, name string, message interface{}, transformFunc bus.TransformFunc) {
 			if transformed, err := transformFunc(message); err == nil {
 				client.WriteEvent(name, transformed)

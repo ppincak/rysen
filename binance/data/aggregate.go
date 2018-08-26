@@ -1,12 +1,16 @@
 package data
 
 import (
+	"reflect"
+
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/math"
+	"gonum.org/v1/gonum/floats"
 )
 
-func AveragePrices(message interface{}) (interface{}, error) {
+// Average prices
+func AveragePrices(message interface{}, lastEntry interface{}, from int64) (interface{}, error) {
 	if models, ok := message.([]interface{}); ok {
 		prices := make([]float64, len(models))
 		for i, m := range models {
@@ -19,20 +23,69 @@ func AveragePrices(message interface{}) (interface{}, error) {
 	return nil, api.NewError("Invalid assertion")
 }
 
-func SumTrades(message interface{}) (interface{}, error) {
+// Create map from array of trades
+func TradesMap(message interface{}, lastEntry interface{}, from int64) (map[int64]*model.Trade, error) {
 	if models, ok := message.([]interface{}); ok {
-		trades := make(map[int64]float64)
+		trades := make(map[int64]*model.Trade)
 		for _, m := range models {
 			if asserted, ok := m.([]*model.Trade); ok {
+				var lastTrade *model.Trade
+
+				if lastEntry != nil {
+					lastTrades := lastEntry.([]*model.Trade)
+					lastTrade = lastTrades[len(lastTrades)-1]
+				}
+
 				for _, trade := range asserted {
-					trades[trade.Id] = trade.PriceFloat64()
+					if lastTrade != nil && trade.Id < lastTrade.Id {
+						continue
+					}
+					if lastTrade == nil && trade.Time >= from {
+						continue
+					}
+					trades[trade.Id] = trade
 				}
 			}
 		}
+		return trades, nil
 	}
-	return nil, api.NewError("Invalid assertion")
+	return nil, api.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
 }
 
-func SumOrders(message interface{}) (interface{}, error) {
-	return nil, nil
+// Sum trades
+func SumTrades(message interface{}, lastEntry interface{}, from int64) (interface{}, error) {
+	trades, err := TradesMap(message, lastEntry, from)
+	if err != nil {
+		return nil, err
+	}
+
+	prices := make([]float64, 0)
+	quantities := make([]float64, 0)
+
+	for _, trade := range trades {
+		prices = append(prices, trade.PriceFloat64())
+		quantities = append(quantities, trade.QuantityFloat64())
+	}
+	return &math.Sum{
+		Metric: floats.Sum(prices),
+		Volume: floats.Sum(quantities),
+	}, nil
+}
+
+// Sum trades by price
+func SumGroupTrades(message interface{}, lastEntry interface{}, from int64) (interface{}, error) {
+	trades, err := TradesMap(message, lastEntry, from)
+	if err != nil {
+		return nil, err
+	}
+
+	priceQuantity := make(map[float64][]float64)
+	for _, trade := range trades {
+		val, ok := priceQuantity[trade.PriceFloat64()]
+		if !ok {
+			val = make([]float64, 0)
+		}
+		priceQuantity[trade.PriceFloat64()] = append(val, trade.QuantityFloat64())
+	}
+	return math.SumGroupedByFloat64(priceQuantity), nil
 }

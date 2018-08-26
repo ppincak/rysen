@@ -68,12 +68,10 @@ func main() {
 
 	feedService.Create(services.NewFeedMetadata("eos", "eosPrice", ""))
 	feedService.Create(services.NewFeedMetadata("ada", "adaPrice", ""))
-	feedService.Create(services.NewFeedMetadata("eos/trades", "eosTrades", ""))
+	feedService.Create(services.NewFeedMetadata("eos/trades/aggregate", "eosTrades", ""))
 
-	aggregator := b.NewAggregator("eos/trades", "aggregate", bus, ProcessCallerEvent, data.SumTrades, aggregate.AggretateTillSize(5))
+	aggregator := b.NewAggregator("eos/trades", "eos/trades/aggregate", bus, ProcessCallerEvent, data.SumTrades, aggregate.AggretateTillSize(5))
 	go aggregator.Start()
-
-	feedService.Create(services.NewFeedMetadata("eos-aggregate", "eosAggregate", ""))
 
 	s := server.NewServer(app, nil)
 	s.Run()

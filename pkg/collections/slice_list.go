@@ -7,7 +7,7 @@ type SliceList struct {
 	size int
 }
 
-func NewSliceList(initialSize int) *SliceList {
+func NewSliceList() *SliceList {
 	return &SliceList{
 		entries: make([]interface{}, 0),
 		size:    0,

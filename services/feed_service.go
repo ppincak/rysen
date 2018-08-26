@@ -27,6 +27,7 @@ func NewFeedService(bus *bus.Bus, handler *ws.Handler) *FeedService {
 	}
 }
 
+// Create feed
 func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
 	defer service.lock.Unlock()
 	service.lock.Lock()
@@ -40,6 +41,7 @@ func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
 	return feed
 }
 
+// Subscribe to feed
 func (service *FeedService) SubscribeTo(name string, client *ws.Client) error {
 	defer service.lock.Unlock()
 	service.lock.Lock()

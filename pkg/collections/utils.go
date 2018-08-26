@@ -1,5 +1,6 @@
 package collections
 
+// Delete from index in array preserving the order
 func DeletePreserving(a []interface{}, index int) []interface{} {
 	if index > len(a) || index < 0 {
 		return nil
@@ -8,6 +9,7 @@ func DeletePreserving(a []interface{}, index int) []interface{} {
 	return a
 }
 
+// Add at index in array
 func AddAt(a []interface{}, index int, value interface{}) []interface{} {
 	if index > len(a) || index < 0 {
 		return nil

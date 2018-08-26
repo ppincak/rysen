@@ -23,7 +23,7 @@ func UnmarshallAs(body []byte, response interface{}) error {
 	}
 	err := json.Unmarshal(body, response)
 	if err != nil {
-		return NewError("Failed to unmarshall response")
+		return err
 	}
 	return nil
 }

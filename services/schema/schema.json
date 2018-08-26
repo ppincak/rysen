@@ -1,0 +1,37 @@
+{
+    "testSchema": {
+        "exchange": "binance",
+        "scrapers": [
+            {
+                "topic": "eos",
+                "symbols": ["eos"],
+                "interval": 1000,
+                "scrapeFunction": 0
+            },
+            {
+                "topic": "btc",
+                "symbols": ["btc"],
+                "interval": 1000,
+                "scrapeFunction": 0
+            }     
+        ],
+        "aggregators": [
+            {
+                "readTopic": "eos",
+                "writeTopic": "eosSum",
+                "processFunc": "",
+                "aggregationFunc": "",
+                "condition": {
+                    
+                }
+            }
+        ],
+        "feeds": [
+            {
+                "topic": "eosSum",
+                "name": "eosFeed",
+                "description": "eosFeed"
+            }
+        ]
+    }
+}

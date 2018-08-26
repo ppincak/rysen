@@ -1,6 +1,5 @@
 package api
 
-type Client interface {
-}
+type Client interface{}
 
 type ApiResponse map[string]interface{}

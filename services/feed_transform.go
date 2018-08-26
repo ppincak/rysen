@@ -15,5 +15,5 @@ func TransformForWsClient(message interface{}) (interface{}, error) {
 	case *bus.AggregationResult:
 		return message.(*bus.AggregationResult).Result, nil
 	}
-	return nil, api.NewError("Unhandle type [%s]", reflect.TypeOf(message).Name)
+	return nil, api.NewError("Unhandled type [%s]", reflect.TypeOf(message).Name)
 }
