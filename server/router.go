@@ -47,7 +47,10 @@ func (router *Router) postSubscribeToFeed(context *gin.Context) {
 		context.JSON(http.StatusBadRequest, NewApiError("Invalid clientId", ""))
 		return
 	}
-	router.app.FeedService.SubscribeTo(feed, client)
+	if router.app.FeedService.SubscribeTo(feed, client) != nil {
+		context.JSON(http.StatusBadRequest, NewApiError("Invalid feed", ""))
+		return
+	}
 
 	context.Status(http.StatusOK)
 }

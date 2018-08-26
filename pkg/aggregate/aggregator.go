@@ -1,10 +1,11 @@
-package bus
+package aggregate
 
 import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/pkg/collections"
 )
 
@@ -15,11 +16,11 @@ type AggregationResult struct {
 }
 
 type Aggregator struct {
-	bus                  *Bus
-	sub                  *BusSubscription
+	bus                  *bus.Bus
+	sub                  *bus.BusSubscription
 	readTopic            string
 	writeTopic           string
-	eventc               chan *BusEvent
+	eventc               chan *bus.BusEvent
 	stopc                chan struct{}
 	list                 *collections.SliceList
 	processFunc          ProcessFunc
@@ -29,14 +30,15 @@ type Aggregator struct {
 	lastEntry            interface{}
 }
 
-type ProcessFunc func(event *BusEvent) (interface{}, error)
+type ProcessFunc func(event *bus.BusEvent) (interface{}, error)
+type AggregationFunc func(entries interface{}, lastEntry interface{}, from int64) (interface{}, error)
 type AggregationCondition func(from int64, to int64, entries *collections.SliceList) bool
 
 // Create new aggregator
 func NewAggregator(
 	readTopic string,
 	writeTopic string,
-	bus *Bus,
+	bus *bus.Bus,
 	processFunc ProcessFunc,
 	aggregationFunc AggregationFunc,
 	aggregationCondition AggregationCondition) *Aggregator {
@@ -61,7 +63,7 @@ func (aggregator *Aggregator) Start() {
 		log.Infof("Aggregator stopped  for topic [%s]", aggregator.readTopic)
 	}()
 
-	eventc := make(chan *BusEvent)
+	eventc := make(chan *bus.BusEvent)
 	aggregator.eventc = eventc
 	aggregator.sub = aggregator.bus.Subscribe(aggregator.readTopic, eventc)
 

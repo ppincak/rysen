@@ -1,7 +1,7 @@
 package schema
 
 import (
-	"github.com/ppincak/rysen/bus"
+	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/services"
 )
@@ -20,6 +20,6 @@ type ExchangeSchema struct {
 	metadata *ExchangeSchemaMetadata
 
 	scrapers    []*scrape.Scraper
-	aggregators []*bus.Aggregator
+	aggregators []*aggregate.Aggregator
 	feeds       []*services.Feed
 }

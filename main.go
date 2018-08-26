@@ -70,7 +70,7 @@ func main() {
 	feedService.Create(services.NewFeedMetadata("ada", "adaPrice", ""))
 	feedService.Create(services.NewFeedMetadata("eos/trades/aggregate", "eosTrades", ""))
 
-	aggregator := b.NewAggregator("eos/trades", "eos/trades/aggregate", bus, ProcessCallerEvent, data.SumTrades, aggregate.AggretateTillSize(5))
+	aggregator := aggregate.NewAggregator("eos/trades", "eos/trades/aggregate", bus, ProcessCallerEvent, data.SumTrades, aggregate.AggretateTillSize(5))
 	go aggregator.Start()
 
 	s := server.NewServer(app, nil)

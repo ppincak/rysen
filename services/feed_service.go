@@ -3,6 +3,8 @@ package services
 import (
 	"sync"
 
+	"github.com/ppincak/rysen/api"
+
 	"github.com/ppincak/rysen/pkg/ws"
 
 	"github.com/ppincak/rysen/bus"
@@ -48,8 +50,10 @@ func (service *FeedService) SubscribeTo(name string, client *ws.Client) error {
 
 	if feed, ok := service.feeds[name]; ok {
 		feed.subscribe(client)
+		return nil
+	} else {
+		return api.NewError("Feed not found")
 	}
-	return nil
 }
 
 func (service *FeedService) GetList() []*FeedMetadata {
