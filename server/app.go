@@ -8,16 +8,12 @@ import (
 	"github.com/ppincak/rysen/services"
 )
 
-type Binance struct {
-	Client *binance.Client
-	Caller *binance.Caller
-	Store  *binance.Store
-}
-
 type App struct {
-	Binance     *Binance
-	Bus         *bus.Bus
-	FeedService *services.FeedService
-	Monitor     *monitor.Monitor
-	WsHandler   *ws.Handler
+	Binance           *binance.Exchange
+	Bus               *bus.Bus
+	AggregatorService *services.AggregatorService
+	FeedService       *services.FeedService
+	ScraperService    *services.ScraperService
+	Monitor           *monitor.Monitor
+	WsHandler         *ws.Handler
 }

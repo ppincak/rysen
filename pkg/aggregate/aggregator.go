@@ -9,12 +9,14 @@ import (
 	"github.com/ppincak/rysen/pkg/collections"
 )
 
+// Result of the aggregation
 type AggregationResult struct {
 	Result interface{} `json:"result"`
 	From   int64       `json:"from"`
 	To     int64       `json:"to"`
 }
 
+// Aggregator
 type Aggregator struct {
 	bus                  *bus.Bus
 	sub                  *bus.BusSubscription

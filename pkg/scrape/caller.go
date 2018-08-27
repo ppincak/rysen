@@ -27,7 +27,7 @@ var StringToFunc = map[string]CallerFuncType{
 // Caller
 type Caller interface {
 	ScrapeOrders(topic string, symbols []string)
-	ScrapePrices(topic string, symbols []string)
+	ScrapePrice(topic string, symbols []string)
 	ScrapeTrades(topic string, symbols []string)
 }
 

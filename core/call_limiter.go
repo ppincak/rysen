@@ -34,7 +34,7 @@ type limiterEvent struct {
 	resc  chan<- int64
 }
 
-func NewApiCallCounter(orderMillis int64, requestMillis int64) *CallLimiter {
+func NewApiCallLimiter(orderMillis int64, requestMillis int64) *CallLimiter {
 	return &CallLimiter{
 		OrdersMade:    0,
 		RequestsMade:  0,

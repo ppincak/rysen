@@ -6,8 +6,21 @@ import (
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/math"
+	"github.com/ppincak/rysen/pkg/aggregate"
 	"gonum.org/v1/gonum/floats"
 )
+
+const (
+	AveragePricesFunc  aggregate.AggregationType = "averagePrices"
+	SumTradesFunc      aggregate.AggregationType = "sumTrades"
+	SumGroupTradesFunc aggregate.AggregationType = "sumGroupTrades"
+)
+
+var Aggregations = map[aggregate.AggregationType]aggregate.AggregationFunc{
+	AveragePricesFunc:  AveragePrices,
+	SumTradesFunc:      SumTrades,
+	SumGroupTradesFunc: SumGroupTrades,
+}
 
 // Average prices
 func AveragePrices(message interface{}, lastEntry interface{}, from int64) (interface{}, error) {

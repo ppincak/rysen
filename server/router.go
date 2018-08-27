@@ -35,23 +35,22 @@ func (router *Router) postSubscribeToFeed(context *gin.Context) {
 	clientId := context.DefaultQuery("clientId", "")
 	feed := context.DefaultQuery("feed", "")
 	if clientId == "" {
-		context.JSON(http.StatusBadRequest, NewApiError("Missing clientId param", ""))
+		context.JSON(http.StatusBadRequest, NewApiError("Missing clientId param", "missing.clienId"))
 		return
 	}
 	if feed == "" {
-		context.JSON(http.StatusBadRequest, NewApiError("Missing feedId param", ""))
+		context.JSON(http.StatusBadRequest, NewApiError("Missing feed param", "missing.feed"))
 		return
 	}
 	client := router.app.WsHandler.GetClient(clientId)
 	if client == nil {
-		context.JSON(http.StatusBadRequest, NewApiError("Invalid clientId", ""))
+		context.JSON(http.StatusBadRequest, NewApiError("Invalid clientId", "invalid.clientId"))
 		return
 	}
 	if router.app.FeedService.SubscribeTo(feed, client) != nil {
-		context.JSON(http.StatusBadRequest, NewApiError("Invalid feed", ""))
+		context.JSON(http.StatusBadRequest, NewApiError("Invalid feed", "invalid.feed"))
 		return
 	}
-
 	context.Status(http.StatusOK)
 }
 
@@ -70,7 +69,7 @@ func (router *Router) deleteFeed(context *gin.Context) {
 }
 
 func (router *Router) getSymbols(context *gin.Context) {
-	context.JSON(http.StatusOK, router.app.Binance.Store.Symbols)
+	context.JSON(http.StatusOK, router.app.Binance.Symbols())
 }
 
 // Convert to schema

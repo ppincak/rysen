@@ -9,9 +9,12 @@ type Sum struct {
 	Volume float64 `json:"volume"`
 }
 
-// TODO finish
-func NewSum() *Sum {
-	return &Sum{}
+// New sum
+func NewSum(metric float64, volume float64) *Sum {
+	return &Sum{
+		Metric: metric,
+		Volume: volume,
+	}
 }
 
 // Summed values grouped by float64 key
