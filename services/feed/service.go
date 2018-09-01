@@ -1,4 +1,4 @@
-package services
+package feed
 
 import (
 	"sync"
@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type FeedService struct {
+type Service struct {
 	bus     *bus.Bus
 	feeds   map[string]*Feed
 	handler *ws.Handler
@@ -20,8 +20,8 @@ type FeedService struct {
 }
 
 // Create feed service
-func NewFeedService(bus *bus.Bus, handler *ws.Handler) *FeedService {
-	return &FeedService{
+func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
+	return &Service{
 		bus:     bus,
 		feeds:   make(map[string]*Feed),
 		handler: handler,
@@ -30,7 +30,7 @@ func NewFeedService(bus *bus.Bus, handler *ws.Handler) *FeedService {
 }
 
 // Create feed
-func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
+func (service *Service) Create(metadata *Metadata) *Feed {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
@@ -44,7 +44,7 @@ func (service *FeedService) Create(metadata *FeedMetadata) *Feed {
 }
 
 // Subscribe to feed
-func (service *FeedService) SubscribeTo(name string, client *ws.Client) error {
+func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
@@ -56,11 +56,11 @@ func (service *FeedService) SubscribeTo(name string, client *ws.Client) error {
 	}
 }
 
-func (service *FeedService) GetList() []*FeedMetadata {
-	list := make([]*FeedMetadata, len(service.feeds))
+func (service *Service) GetList() []*Metadata {
+	list := make([]*Metadata, len(service.feeds))
 	i := 0
 	for _, value := range service.feeds {
-		list[i] = value.FeedMetadata
+		list[i] = value.Metadata
 		i++
 	}
 	return list

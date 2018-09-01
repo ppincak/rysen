@@ -23,7 +23,7 @@ var _ crypto.Exchange = (*Exchange)(nil)
 var _ monitor.Reporter = (*Exchange)(nil)
 
 func NewExchange(config *Config, bus *bus.Bus) *Exchange {
-	client := NewClient(config.Url, config.Secret)
+	client := NewClient(config.url, config.secret)
 
 	return &Exchange{
 		Client: client,

@@ -4,7 +4,15 @@ import "github.com/ppincak/rysen/api"
 
 type Config struct {
 	// Exchange url
-	Url string
+	url string
 	// Secret
-	Secret *api.Secret
+	secret *api.Secret
+}
+
+// Create new config
+func NewConfig(url string, secret *api.Secret) *Config {
+	return &Config{
+		url:    url,
+		secret: secret,
+	}
 }

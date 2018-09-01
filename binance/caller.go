@@ -14,6 +14,7 @@ import (
 type Caller struct {
 	client *Client
 	bus    *bus.Bus
+	// Todo: add limiter
 	//limiter *core.CallLimiter
 }
 

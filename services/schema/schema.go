@@ -8,6 +8,7 @@ import (
 
 // Schema container
 type Schema struct {
+	// Todo: rename to components
 	echangeSchemas map[string]*ExchangeSchemaMetadata
 }
 
@@ -34,4 +35,9 @@ func CreateSchema(jsonSchema []byte) (*Schema, error) {
 	return &Schema{
 		echangeSchemas: echangeSchemas,
 	}, nil
+}
+
+// Return single component from schema
+func (schema *Schema) Component(component string) *ExchangeSchemaMetadata {
+	return schema.echangeSchemas[component]
 }

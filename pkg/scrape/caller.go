@@ -20,7 +20,7 @@ var FuncToString = map[CallerFuncType]string{
 // Mapping from string representation to caller func type
 var StringToFunc = map[string]CallerFuncType{
 	"scrapeOrders": 0,
-	"scrapePrices": 1,
+	"scrapePrice":  1,
 	"scrapeTrades": 2,
 }
 

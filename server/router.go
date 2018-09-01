@@ -21,7 +21,7 @@ func NewRouter(app *App) *Router {
 func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(RoutesV1.live, router.getLive)
 	engine.GET(RoutesV1.symbols, router.getSymbols)
-	engine.GET(RoutesV1.config, router.getConfig)
+	engine.GET(RoutesV1.schemas, router.getSchemas)
 	engine.GET(RoutesV1.statistics, router.getStatistics)
 	engine.GET(RoutesV1.feeds, router.getFeeds)
 	engine.POST(RoutesV1.subscribeToFeed, router.postSubscribeToFeed)
@@ -73,8 +73,8 @@ func (router *Router) getSymbols(context *gin.Context) {
 }
 
 // Convert to schema
-func (router *Router) getConfig(context *gin.Context) {
-	context.JSON(http.StatusOK, nil)
+func (router *Router) getSchemas(context *gin.Context) {
+	context.JSON(http.StatusOK)
 }
 
 func (router *Router) getStatistics(context *gin.Context) {

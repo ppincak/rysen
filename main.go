@@ -2,15 +2,16 @@ package main
 
 import (
 	"github.com/ppincak/rysen/api"
+	"github.com/ppincak/rysen/services/aggregator"
+	"github.com/ppincak/rysen/services/feed"
+	"github.com/ppincak/rysen/services/schema"
+	"github.com/ppincak/rysen/services/scraper"
 
-	"github.com/ppincak/rysen/binance/data"
 	b "github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/pkg/ws"
 	"github.com/ppincak/rysen/server"
-	"github.com/ppincak/rysen/services"
 
 	"github.com/ppincak/rysen/binance"
 
@@ -19,11 +20,10 @@ import (
 
 func main() {
 	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.DebugLevel)
 
-	binanceConfig := &binance.Config{
-		Url:    "https://api.binance.com",
-		Secret: nil,
-	}
+	binanceConfig := binance.NewConfig("https://api.binance.com", nil)
+
 	bus := b.NewBus()
 	go bus.Start()
 
@@ -35,34 +35,29 @@ func main() {
 	}
 	wsHandler := ws.NewHandler(nil)
 
-	feedService := services.NewFeedService(bus, wsHandler)
-
 	monitor := monitor.NewMonitor()
 	monitor.Register(exchange)
 	monitor.Register(wsHandler)
 
+	aggregatorService := aggregator.NewService(bus)
+	feedService := feed.NewService(bus, wsHandler)
+	scraperService := scraper.NewService(bus)
+
+	schemas, err := schema.LoadAndCreateSchema("./schema.json")
+	schemaService := schema.NewService(aggregatorService, feedService, scraperService)
+	schemaService.Register("binance", exchange)
+	schemaService.Create(schemas.Component("testSchema"))
+
 	app := &server.App{
-		Binance:     exchange,
-		Bus:         bus,
-		FeedService: feedService,
-		Monitor:     monitor,
-		WsHandler:   wsHandler,
+		Binance:           exchange,
+		Bus:               bus,
+		SchemaService:     schemaService,
+		AggregatorService: aggregatorService,
+		FeedService:       feedService,
+		ScraperService:    scraperService,
+		Monitor:           monitor,
+		WsHandler:         wsHandler,
 	}
-
-	eos := scrape.NewScraper("eos", []string{"EOSBTC"}, exchange.Caller.ScrapePrice, 1000)
-	go eos.Start()
-	ada := scrape.NewScraper("ada", []string{"ADABTC"}, exchange.Caller.ScrapePrice, 1000)
-	go ada.Start()
-
-	eosTrades := scrape.NewScraper("eos/trades", []string{"EOSBTC"}, exchange.Caller.ScrapeTrades, 1000)
-	go eosTrades.Start()
-
-	feedService.Create(services.NewFeedMetadata("eos", "eosPrice", ""))
-	feedService.Create(services.NewFeedMetadata("ada", "adaPrice", ""))
-	feedService.Create(services.NewFeedMetadata("eos/trades/aggregate", "eosTrades", ""))
-
-	aggregator := aggregate.NewAggregator("eos/trades", "eos/trades/aggregate", bus, ProcessCallerEvent, data.SumTrades, aggregate.AggretateTillSize(5))
-	go aggregator.Start()
 
 	s := server.NewServer(app, nil)
 	s.Run()

@@ -1,4 +1,4 @@
-package services
+package feed
 
 import (
 	"sync"
@@ -10,7 +10,7 @@ import (
 )
 
 type Feed struct {
-	*FeedMetadata
+	*Metadata
 
 	// map of clients connected to the feed
 	clients map[string]*ws.Client
@@ -33,13 +33,13 @@ type Feed struct {
 }
 
 // Create Feed
-func NewFeed(metadata *FeedMetadata, b *bus.Bus, handler *ws.Handler, transformFunc bus.TransformFunc) *Feed {
+func NewFeed(metadata *Metadata, b *bus.Bus, handler *ws.Handler, transformFunc bus.TransformFunc) *Feed {
 	if transformFunc == nil {
 		transformFunc = TransformForWsClient
 	}
 
 	return &Feed{
-		FeedMetadata:  metadata,
+		Metadata:      metadata,
 		bus:           b,
 		clients:       make(map[string]*ws.Client),
 		eventsc:       make(chan *bus.BusEvent),

@@ -2,7 +2,7 @@ package server
 
 type Routes struct {
 	symbols           string
-	config            string
+	schemas           string
 	statistics        string
 	live              string
 	feeds             string
@@ -13,7 +13,7 @@ type Routes struct {
 func newRoutesV1() *Routes {
 	return &Routes{
 		symbols:           "/v1/symbols",
-		config:            "/v1/config",
+		schemas:           "/v1/schemas",
 		statistics:        "/v1/statistics",
 		live:              "v1/live",
 		feeds:             "v1/feeds",

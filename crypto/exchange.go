@@ -13,13 +13,3 @@ type Exchange interface {
 	// Get all symbols available for exchange
 	Symbols() *Symbols
 }
-
-type ExchangeContainer struct {
-	exchanges map[string]Exchange
-}
-
-func NewExchangeContainer() *ExchangeContainer {
-	return &ExchangeContainer{
-		exchanges: make(map[string]Exchange),
-	}
-}

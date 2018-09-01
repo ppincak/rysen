@@ -1,6 +1,6 @@
-package services
+package feed
 
-type FeedMetadata struct {
+type Metadata struct {
 	Name              string `json:"name"`
 	Description       string `json:"description"`
 	Topic             string `json:"topic"`
@@ -8,8 +8,8 @@ type FeedMetadata struct {
 }
 
 // Create feed metadata
-func NewFeedMetadata(topic string, name string, description string) *FeedMetadata {
-	return &FeedMetadata{
+func NewMetadata(topic string, name string, description string) *Metadata {
+	return &Metadata{
 		Name:        name,
 		Description: description,
 		Topic:       topic,

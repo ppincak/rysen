@@ -1,11 +1,11 @@
-package services
+package aggregator
 
 import (
 	"github.com/ppincak/rysen/pkg/aggregate"
 )
 
 // Metadata structure describing aggregator
-type AggregatorMetadata struct {
+type Metadata struct {
 	ReadTopic       string               `json:"readTopic"`
 	WriteTopic      string               `json:"writeTopic"`
 	AggregationFunc string               `json:"aggregationFunc"`

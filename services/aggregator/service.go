@@ -1,24 +1,25 @@
-package services
+package aggregator
 
 import (
 	"github.com/ppincak/rysen/api"
 	b "github.com/ppincak/rysen/bus"
-	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
-type AggregatorService struct {
+type Service struct {
 	bus *b.Bus
 }
 
-func NewAggregatorService(bus *b.Bus) *AggregatorService {
-	return &AggregatorService{
+func NewService(bus *b.Bus) *Service {
+	return &Service{
 		bus: bus,
 	}
 }
 
-func (service *AggregatorService) Create(metadata *AggregatorMetadata, exchange crypto.Exchange) (*aggregate.Aggregator, error) {
+// Todo: enhance
+// Create aggregator
+func (service *Service) Create(metadata *Metadata, aggregations aggregate.AggregationsMap) (*aggregate.Aggregator, error) {
 	var conditionFunc aggregate.AggregationCondition
 	switch metadata.Condition.Func {
 	case aggregate.TillSize:
@@ -27,7 +28,6 @@ func (service *AggregatorService) Create(metadata *AggregatorMetadata, exchange 
 		conditionFunc = aggregate.AggretateTillTime(metadata.Condition.Value)
 	}
 
-	aggregations := exchange.Aggregations()
 	aggregationFunc, ok := aggregations[aggregate.AggregationType(metadata.AggregationFunc)]
 	if !ok {
 		return nil, api.NewError("Aggregation function ot found")
