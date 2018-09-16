@@ -7,7 +7,7 @@ type Metadata struct {
 	EstimatedInterval int64  `json:"estimatedInterval"`
 }
 
-// Create feed metadata
+// Create Feed metadata
 func NewMetadata(topic string, name string, description string) *Metadata {
 	return &Metadata{
 		Name:        name,

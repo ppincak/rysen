@@ -6,6 +6,7 @@ import (
 	"github.com/ppincak/rysen/api"
 )
 
+// Convert value to float64
 func ToFloat64(value interface{}) (float64, error) {
 	switch t := value.(type) {
 	case float32:

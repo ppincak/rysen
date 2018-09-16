@@ -30,6 +30,9 @@ type Feed struct {
 	transformFunc bus.TransformFunc
 	// subscription to bus
 	sub *bus.BusSubscription
+
+	// feeds metrics
+	metrics *Metrics
 }
 
 // Create Feed
@@ -46,6 +49,7 @@ func NewFeed(metadata *Metadata, b *bus.Bus, handler *ws.Handler, transformFunc 
 		handler:       handler,
 		lock:          new(sync.RWMutex),
 		transformFunc: transformFunc,
+		metrics:       NewMetrics(),
 	}
 }
 
@@ -55,14 +59,16 @@ func (feed *Feed) transform(event *bus.BusEvent) {
 	feed.lock.RLock()
 
 	for _, client := range feed.clients {
-		// has to be async
-		// Note: refactor
+		// Note: rethink and maybe refactor in the future
+		// call has to be async, so we don't block the route for a log period of time
 		go func(client *ws.Client, name string, message interface{}, transformFunc bus.TransformFunc) {
 			if transformed, err := transformFunc(message); err == nil {
 				client.WriteEvent(name, transformed)
 			}
 		}(client, feed.Name, event.Message, feed.transformFunc)
 	}
+
+	feed.metrics.MessagesSent.Add(int64(len(feed.clients)))
 }
 
 // Subscribe client to feed

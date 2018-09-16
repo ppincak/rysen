@@ -11,13 +11,14 @@ type Service struct {
 	bus *b.Bus
 }
 
+// Create new Servie
 func NewService(bus *b.Bus) *Service {
 	return &Service{
 		bus: bus,
 	}
 }
 
-// Todo: enhance
+// Note: think of better implementation
 // Create aggregator
 func (service *Service) Create(metadata *Metadata, aggregations aggregate.AggregationsMap) (*aggregate.Aggregator, error) {
 	var conditionFunc aggregate.AggregationCondition

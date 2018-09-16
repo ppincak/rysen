@@ -9,6 +9,7 @@ import (
 	"gonum.org/v1/gonum/stat"
 )
 
+// Contains different averages
 type Average struct {
 	Mean     float64 `json:"mean"`
 	Median   float64 `json:"median"`
@@ -18,6 +19,7 @@ type Average struct {
 	Length   int     `json:"length"`
 }
 
+// Create new Average
 func NewAverage(values []float64) *Average {
 	sort.Float64s(values)
 

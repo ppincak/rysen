@@ -109,6 +109,9 @@ func (client *Client) readPump() {
 		if err != nil {
 			log.Errorf("Failed to read from Client: [%s]", client.uuid)
 			log.Error(err)
+
+			client.handler.metrics.ReadsFailed.Inc()
+
 			return
 		}
 		client.readc <- message
@@ -148,6 +151,8 @@ func (client *Client) writePump() {
 			if err != nil {
 				log.Error("Failed to write message", message)
 				log.Error(err)
+
+				client.handler.metrics.WritesFailed.Inc()
 			}
 		case <-client.pongTicker.C:
 			conn.SetWriteDeadline(time.Now().Add(client.config.WriteWait))

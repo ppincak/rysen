@@ -12,16 +12,37 @@ import (
 type ExchangeSchemaMetadata struct {
 	Name        string                 `json:"name"`
 	Exchange    string                 `json:"exchange"`
-	Feeds       []*feed.Metadata       `json:"feeds"`
 	Scrapers    []*scraper.Metadata    `json:"scrapers"`
 	Aggregators []*aggregator.Metadata `json:"aggregators"`
+	Feeds       []*feed.Metadata       `json:"feeds"`
 }
 
-// Todo: rethink
-type ExchangeSchema struct {
+// Creates empty ExchangeSchemaMetadata
+func NewExchangeSchemaMetadata(name string) *ExchangeSchemaMetadata {
+	return &ExchangeSchemaMetadata{
+		Name:        name,
+		Scrapers:    make([]*scraper.Metadata, 0),
+		Aggregators: make([]*aggregator.Metadata, 0),
+		Feeds:       make([]*feed.Metadata, 0),
+	}
+}
+
+// Note: maybe rename to ExchangeSchema
+// Represents single instance of the exchange schema
+type ExchangeSchemaInstance struct {
 	metadata *ExchangeSchemaMetadata
 
 	scrapers    []*scrape.Scraper
 	aggregators []*aggregate.Aggregator
 	feeds       []*feed.Feed
+}
+
+// Create new schema instance
+func NewExchangeSchemaInstance(metadata *ExchangeSchemaMetadata) *ExchangeSchemaInstance {
+	return &ExchangeSchemaInstance{
+		metadata:    metadata,
+		scrapers:    make([]*scrape.Scraper, len(metadata.Scrapers)),
+		aggregators: make([]*aggregate.Aggregator, len(metadata.Aggregators)),
+		feeds:       make([]*feed.Feed, len(metadata.Feeds)),
+	}
 }

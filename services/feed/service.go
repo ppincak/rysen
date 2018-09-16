@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/ppincak/rysen/api"
+	"github.com/ppincak/rysen/monitor"
 
 	"github.com/ppincak/rysen/pkg/ws"
 
@@ -11,6 +12,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 )
+
+var _ monitor.Reporter = (*Service)(nil)
 
 type Service struct {
 	bus     *bus.Bus
@@ -29,6 +32,21 @@ func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
 	}
 }
 
+// Get feed statistics
+func (service *Service) Statistics() []*monitor.Statistic {
+	defer service.lock.Unlock()
+	service.lock.Lock()
+
+	i := 0
+	statistics := make([]*monitor.Statistic, len(service.feeds))
+	for _, feed := range service.feeds {
+		statistics[i] = feed.metrics.ToStatistic(feed.Name)
+		i++
+	}
+	return statistics
+}
+
+// Note: maybe check for unique feed name
 // Create feed
 func (service *Service) Create(metadata *Metadata) *Feed {
 	defer service.lock.Unlock()
@@ -56,7 +74,8 @@ func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 	}
 }
 
-func (service *Service) GetList() []*Metadata {
+// List all feeds
+func (service *Service) ListFeeds() []*Metadata {
 	list := make([]*Metadata, len(service.feeds))
 	i := 0
 	for _, value := range service.feeds {

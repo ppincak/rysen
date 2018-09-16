@@ -1,5 +1,6 @@
 package scraper
 
+// Scraper metadata
 type Metadata struct {
 	Topic      string   `json:"topic"`
 	Symbols    []string `json:"symbols"`

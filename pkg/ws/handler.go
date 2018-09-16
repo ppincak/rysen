@@ -15,6 +15,7 @@ import (
 
 type OnRemoveCallback func(*Client)
 
+// Connection handler
 type Handler struct {
 	clients           map[string]*Client
 	config            *Config
@@ -24,6 +25,7 @@ type Handler struct {
 	onRemoveCallbacks map[string]OnRemoveCallback
 }
 
+// Create new handler
 func NewHandler(config *Config) *Handler {
 	if config == nil {
 		config = DefaultConfig
@@ -89,7 +91,7 @@ func (handler *Handler) OnRemove(callback OnRemoveCallback) string {
 }
 
 func (handler *Handler) runOnRemove(client *Client) {
-	// Note: add locks here ??
+	// Note: maybe needed to add a lock here in the future
 	for _, callback := range handler.onRemoveCallbacks {
 		callback(client)
 	}

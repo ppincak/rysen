@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/services/aggregator"
 	"github.com/ppincak/rysen/services/feed"
 	"github.com/ppincak/rysen/services/schema"
@@ -9,7 +8,6 @@ import (
 
 	b "github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/pkg/ws"
 	"github.com/ppincak/rysen/server"
 
@@ -35,13 +33,14 @@ func main() {
 	}
 	wsHandler := ws.NewHandler(nil)
 
-	monitor := monitor.NewMonitor()
-	monitor.Register(exchange)
-	monitor.Register(wsHandler)
-
 	aggregatorService := aggregator.NewService(bus)
 	feedService := feed.NewService(bus, wsHandler)
 	scraperService := scraper.NewService(bus)
+
+	monitor := monitor.NewMonitor()
+	monitor.Register(exchange)
+	monitor.Register(wsHandler)
+	monitor.Register(feedService)
 
 	schemas, err := schema.LoadAndCreateSchema("./schema.json")
 	schemaService := schema.NewService(aggregatorService, feedService, scraperService)
@@ -61,12 +60,4 @@ func main() {
 
 	s := server.NewServer(app, nil)
 	s.Run()
-}
-
-func ProcessCallerEvent(event *b.BusEvent) (interface{}, error) {
-	if assertion, ok := event.Message.(*scrape.CallerEvent); ok {
-		return assertion.Data, nil
-	} else {
-		return nil, api.NewError("Failed to assert")
-	}
 }
