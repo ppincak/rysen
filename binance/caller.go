@@ -5,7 +5,7 @@ import (
 
 	"github.com/ppincak/rysen/binance/model"
 
-	"github.com/ppincak/rysen/bus"
+	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/scrape"
 
 	log "github.com/sirupsen/logrus"
@@ -14,17 +14,14 @@ import (
 type Caller struct {
 	client *Client
 	bus    *bus.Bus
-	// Todo: add limiter
-	//limiter *core.CallLimiter
 }
 
 var _ scrape.Caller = (*Caller)(nil)
 
-func NewCaller(client *Client, bus *bus.Bus /*, limiter *core.CallLimiter*/) *Caller {
+func NewCaller(client *Client, bus *bus.Bus) *Caller {
 	return &Caller{
 		client: client,
 		bus:    bus,
-		//limiter: limiter,
 	}
 }
 
@@ -36,8 +33,6 @@ func (caller *Caller) call(topic string, symbols []string, eventType scrape.Call
 			t := time.Now()
 
 			resp, err := callable(client, symbol)
-
-			//go caller.limiter.IncrRequests(nil)
 
 			if err == nil {
 				caller.bus.Publish(topic, &scrape.CallerEvent{

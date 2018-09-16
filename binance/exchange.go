@@ -3,10 +3,10 @@ package binance
 import (
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/data"
-	"github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/monitor"
 	"github.com/ppincak/rysen/pkg/aggregate"
+	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 

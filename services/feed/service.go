@@ -8,7 +8,7 @@ import (
 
 	"github.com/ppincak/rysen/pkg/ws"
 
-	"github.com/ppincak/rysen/bus"
+	"github.com/ppincak/rysen/pkg/bus"
 
 	log "github.com/sirupsen/logrus"
 )

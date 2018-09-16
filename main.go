@@ -6,8 +6,8 @@ import (
 	"github.com/ppincak/rysen/services/schema"
 	"github.com/ppincak/rysen/services/scraper"
 
-	b "github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/monitor"
+	b "github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/ws"
 	"github.com/ppincak/rysen/server"
 

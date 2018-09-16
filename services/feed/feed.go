@@ -3,7 +3,7 @@ package feed
 import (
 	"sync"
 
-	"github.com/ppincak/rysen/bus"
+	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/ws"
 
 	log "github.com/sirupsen/logrus"
@@ -53,7 +53,7 @@ func NewFeed(metadata *Metadata, b *bus.Bus, handler *ws.Handler, transformFunc 
 	}
 }
 
-// Transfor bus message to message for the feed
+// Transform bus message to message for the feed
 func (feed *Feed) transform(event *bus.BusEvent) {
 	defer feed.lock.RUnlock()
 	feed.lock.RLock()

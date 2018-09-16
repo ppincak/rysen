@@ -2,8 +2,8 @@ package aggregator
 
 import (
 	"github.com/ppincak/rysen/api"
-	b "github.com/ppincak/rysen/bus"
 	"github.com/ppincak/rysen/pkg/aggregate"
+	b "github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 

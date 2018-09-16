@@ -8,7 +8,7 @@ import (
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
-// Do bus transformation for feed
+// Do message trasformation
 func TransformForWsClient(message interface{}) (interface{}, error) {
 	switch message.(type) {
 	case *scrape.CallerEvent:

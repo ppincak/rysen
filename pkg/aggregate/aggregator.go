@@ -5,7 +5,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/ppincak/rysen/bus"
+	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/collections"
 )
 

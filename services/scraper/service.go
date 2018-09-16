@@ -5,7 +5,7 @@ import (
 
 	"github.com/ppincak/rysen/api"
 
-	"github.com/ppincak/rysen/bus"
+	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
