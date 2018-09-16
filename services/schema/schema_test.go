@@ -6,7 +6,7 @@ import (
 
 // Test creation of the schema structure
 func TestLoadAndCreateSchema(t *testing.T) {
-	schema, err := LoadAndCreateSchema("./schema.json")
+	schema, err := LoadAndCreateSchema("./schema_test.json")
 
 	if err != nil {
 		t.Error(err)

@@ -11,6 +11,7 @@ import (
 	"github.com/ppincak/rysen/services/scraper"
 )
 
+// Application component container
 type App struct {
 	Binance           *binance.Exchange
 	Bus               *bus.Bus

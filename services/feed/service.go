@@ -13,14 +13,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var _ monitor.Reporter = (*Service)(nil)
-
 type Service struct {
 	bus     *bus.Bus
 	feeds   map[string]*Feed
 	handler *ws.Handler
 	lock    *sync.RWMutex
 }
+
+var _ monitor.Reporter = (*Service)(nil)
 
 // Create feed service
 func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
@@ -46,11 +46,14 @@ func (service *Service) Statistics() []*monitor.Statistic {
 	return statistics
 }
 
-// Note: maybe check for unique feed name
 // Create feed
-func (service *Service) Create(metadata *Metadata) *Feed {
+func (service *Service) Create(metadata *Metadata) (*Feed, error) {
 	defer service.lock.Unlock()
 	service.lock.Lock()
+
+	if _, ok := service.feeds[metadata.Name]; ok {
+		return nil, api.NewError("Feed with name [%s] already exists", metadata.Name)
+	}
 
 	feed := NewFeed(metadata, service.bus, service.handler, nil)
 	log.Infof("Feed [%s] created", feed.Name)
@@ -58,7 +61,7 @@ func (service *Service) Create(metadata *Metadata) *Feed {
 	feed.Init()
 	service.feeds[metadata.Name] = feed
 
-	return feed
+	return feed, nil
 }
 
 // Subscribe to feed

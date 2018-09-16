@@ -37,7 +37,7 @@ func NewService(
 }
 
 // Register an crypto exchange
-func (service *Service) Register(name string, exchange crypto.Exchange) {
+func (service *Service) RegisterExchange(name string, exchange crypto.Exchange) {
 	service.exchanges[name] = exchange
 }
 
@@ -53,6 +53,7 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaI
 
 	instance := NewExchangeSchemaInstance(schema)
 
+	// Create Scrapers
 	for i, metadata := range schema.Scrapers {
 		if scraper, err := service.scraperService.Create(metadata, exchange.Caller()); err != nil {
 			log.Error("Failed to create scraper from metadata [%#v]", metadata)
@@ -64,6 +65,7 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaI
 		}
 	}
 
+	// Create Aggregators
 	for i, metadata := range schema.Aggregators {
 		if aggregator, err := service.aggregatorService.Create(metadata, exchange.Aggregations()); err != nil {
 			log.Error("Failed to create aggregator from metadata [%#v]", metadata)
@@ -75,10 +77,19 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaI
 		}
 	}
 
+	// Create Feeds
 	for i, metadata := range schema.Feeds {
 		log.Debugf("Creating feed [%#v]", metadata)
 
-		instance.feeds[i] = service.feedService.Create(metadata)
+		if feed, err := service.feedService.Create(metadata); err != nil {
+			log.Error("Failed to create feed from metadata [%#v]", metadata)
+			log.Error(err)
+		} else {
+			instance.feeds[i] = feed
+
+			log.Debugf("Created feed from metadata [%#v]", metadata)
+		}
+
 	}
 
 	service.schemaInstances[schema.Name] = instance

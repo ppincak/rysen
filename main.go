@@ -44,7 +44,7 @@ func main() {
 
 	schemas, err := schema.LoadAndCreateSchema("./schema.json")
 	schemaService := schema.NewService(aggregatorService, feedService, scraperService)
-	schemaService.Register("binance", exchange)
+	schemaService.RegisterExchange("binance", exchange)
 	schemaService.Create(schemas.Component("testSchema"))
 
 	app := &server.App{

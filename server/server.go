@@ -14,6 +14,7 @@ type Server struct {
 	router *Router
 }
 
+// Create new server
 func NewServer(app *App, config *Config) *Server {
 	if config == nil {
 		config = DefaultConfig

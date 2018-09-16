@@ -75,11 +75,13 @@ func (router *Router) createFeed(context *gin.Context) {
 		errors.BadRequest(context, "", "")
 		return
 	}
+	if feed, err := router.app.FeedService.Create(metadata); err != nil {
+		errors.ErrorBadRequest(context, err)
+	} else {
+		feed.Init()
 
-	feed := router.app.FeedService.Create(metadata)
-	feed.Init()
-
-	context.Status(http.StatusOK)
+		context.Status(http.StatusOK)
+	}
 }
 
 func (router *Router) getSymbols(context *gin.Context) {
