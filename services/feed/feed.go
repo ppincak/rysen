@@ -71,6 +71,7 @@ func (feed *Feed) transform(event *bus.BusEvent) {
 	feed.metrics.MessagesSent.Add(int64(len(feed.clients)))
 }
 
+// Note: feed should some some event when client subscribes to a feed
 // Subscribe client to feed
 func (feed *Feed) subscribe(client *ws.Client) {
 	defer feed.lock.Unlock()

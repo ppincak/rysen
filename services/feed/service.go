@@ -14,10 +14,11 @@ import (
 )
 
 type Service struct {
-	bus     *bus.Bus
-	feeds   map[string]*Feed
-	handler *ws.Handler
-	lock    *sync.RWMutex
+	bus         *bus.Bus
+	feeds       map[string]*Feed
+	clientFeeds map[string][]*Feed
+	handler     *ws.Handler
+	lock        *sync.RWMutex
 }
 
 var _ monitor.Reporter = (*Service)(nil)
@@ -25,10 +26,11 @@ var _ monitor.Reporter = (*Service)(nil)
 // Create feed service
 func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
 	return &Service{
-		bus:     bus,
-		feeds:   make(map[string]*Feed),
-		handler: handler,
-		lock:    new(sync.RWMutex),
+		bus:         bus,
+		feeds:       make(map[string]*Feed),
+		clientFeeds: make(map[string][]*Feed),
+		handler:     handler,
+		lock:        new(sync.RWMutex),
 	}
 }
 
@@ -71,6 +73,16 @@ func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 
 	if feed, ok := service.feeds[name]; ok {
 		feed.subscribe(client)
+
+		// Add feed to collection of feeds
+		var feeds []*Feed
+		if f, ok := service.clientFeeds[client.GetSessionId()]; !ok {
+			feeds = make([]*Feed, 0)
+		} else {
+			feeds = f
+		}
+		feeds = append(feeds, feed)
+
 		return nil
 	} else {
 		return api.NewError("Feed not found")

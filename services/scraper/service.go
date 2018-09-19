@@ -4,8 +4,10 @@ import (
 	"sync"
 
 	"github.com/ppincak/rysen/api"
+	"github.com/ppincak/rysen/crypto"
 
 	"github.com/ppincak/rysen/pkg/bus"
+	"github.com/ppincak/rysen/pkg/collections"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
@@ -26,9 +28,13 @@ func NewService(bus *bus.Bus) *Service {
 }
 
 // Create scraper from metadata
-func (service *Service) Create(metadata *Metadata, caller scrape.Caller) (*scrape.Scraper, error) {
+func (service *Service) Create(metadata *Metadata, caller scrape.Caller, exchange crypto.Exchange) (*scrape.Scraper, error) {
 	defer service.lock.Unlock()
 	service.lock.Lock()
+
+	if collections.ArrayOfStringContains(exchange.Symbols().Symbols, metadata.Symbols) == false {
+		return nil, api.NewError("Symbols cannot be used for scraping [%#v]", metadata.Symbols)
+	}
 
 	callerFuncType, ok := scrape.StringToFunc[metadata.ScrapeFunc]
 	if !ok {

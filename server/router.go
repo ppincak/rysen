@@ -25,9 +25,10 @@ func NewRouter(app *App) *Router {
 func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(RoutesV1.live, router.getLive)
 	engine.GET(RoutesV1.feeds, router.getFeeds)
+	engine.POST(RoutesV1.feeds, router.createFeed)
 	engine.GET(RoutesV1.symbols, router.getSymbols)
 	engine.GET(RoutesV1.schema, router.getSchemas)
-	engine.POST(RoutesV1.createSchema, router.createSchema)
+	engine.POST(RoutesV1.schema, router.createSchema)
 	engine.GET(RoutesV1.statistics, router.getStatistics)
 	engine.POST(RoutesV1.subscribeToFeed, router.subscribeToFeed)
 }
@@ -64,17 +65,12 @@ func (router *Router) getFeeds(context *gin.Context) {
 }
 
 func (router *Router) createFeed(context *gin.Context) {
-	name := context.Param("name")
-	if name == "" {
-		errors.BadRequest(context, "Invalid schema name", "invalid.feed")
+	var metadata *feed.Metadata
+	if err := context.ShouldBindJSON(&metadata); err != nil {
+		errors.BadRequest(context, "Deserialization failed", "deserialization.failed")
 		return
 	}
 
-	var metadata *feed.Metadata
-	if err := context.ShouldBindJSON(&metadata); err != nil {
-		errors.BadRequest(context, "", "")
-		return
-	}
 	if feed, err := router.app.FeedService.Create(metadata); err != nil {
 		errors.ErrorBadRequest(context, err)
 	} else {
@@ -97,17 +93,12 @@ func (router *Router) getSchemas(context *gin.Context) {
 }
 
 func (router *Router) createSchema(context *gin.Context) {
-	name := context.Param("name")
-	if name == "" {
-		errors.BadRequest(context, "Invalid schema name", "invalid.schema")
+	var schema *schema.ExchangeSchemaMetadata
+	if err := context.ShouldBindJSON(&schema); err != nil {
+		errors.BadRequest(context, "Deserialization failed", "deserialization.failed")
 		return
 	}
 
-	schema := schema.NewExchangeSchemaMetadata(name)
-	if err := context.ShouldBindJSON(&schema); err != nil {
-		errors.BadRequest(context, "", "")
-		return
-	}
 	_, err := router.app.SchemaService.Create(schema)
 	if err != nil {
 		errors.ErrorBadRequest(context, err)

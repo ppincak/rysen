@@ -20,6 +20,7 @@ func NewServer(app *App, config *Config) *Server {
 		config = DefaultConfig
 	}
 
+	// TODO: replace gin.Default
 	return &Server{
 		config: config,
 		engine: gin.Default(),
@@ -27,6 +28,7 @@ func NewServer(app *App, config *Config) *Server {
 	}
 }
 
+// Run the server
 func (server *Server) Run() {
 	port := strings.Join([]string{":", strconv.Itoa(server.config.Port)}, "")
 	server.router.Init(server.engine)

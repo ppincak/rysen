@@ -18,3 +18,19 @@ func AddAt(a []interface{}, index int, value interface{}) []interface{} {
 	tmp = append(tmp, a[:index])
 	return tmp
 }
+
+// Check if map with string keys contains all keys from the given array
+func ArrayOfStringContains(sourceValues []string, values []string) bool {
+	sourceMap := make(map[interface{}]struct{})
+	for _, sourceValue := range sourceValues {
+		sourceMap[sourceValue] = struct{}{}
+	}
+
+	for _, value := range values {
+		if _, ok := sourceMap[value]; !ok {
+			return false
+		}
+	}
+
+	return true
+}

@@ -55,7 +55,7 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaI
 
 	// Create Scrapers
 	for i, metadata := range schema.Scrapers {
-		if scraper, err := service.scraperService.Create(metadata, exchange.Caller()); err != nil {
+		if scraper, err := service.scraperService.Create(metadata, exchange.Caller(), exchange); err != nil {
 			log.Error("Failed to create scraper from metadata [%#v]", metadata)
 			log.Error(err)
 		} else {
