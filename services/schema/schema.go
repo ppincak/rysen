@@ -6,10 +6,10 @@ import (
 	"github.com/ppincak/rysen/api"
 )
 
+// TODO: remove this struct as it is now esentially useless
 // Schema container
 type Schema struct {
-	// Todo: rename to components
-	echangeSchemas map[string]*ExchangeSchemaMetadata
+	components map[string]*ExchangeSchemaMetadata
 }
 
 // Load schema.json file
@@ -23,21 +23,21 @@ func LoadAndCreateSchema(url string) (*Schema, error) {
 
 // Create schema from json
 func CreateSchema(jsonSchema []byte) (*Schema, error) {
-	var echangeSchemas map[string]*ExchangeSchemaMetadata
-	err := api.UnmarshallAs(jsonSchema, &echangeSchemas)
+	var components map[string]*ExchangeSchemaMetadata
+	err := api.UnmarshallAs(jsonSchema, &components)
 	if err != nil {
 		return nil, err
 	}
-	for name, schema := range echangeSchemas {
+	for name, schema := range components {
 		schema.Name = name
 	}
 
 	return &Schema{
-		echangeSchemas: echangeSchemas,
+		components: components,
 	}, nil
 }
 
 // Return single component from schema
 func (schema *Schema) Component(component string) *ExchangeSchemaMetadata {
-	return schema.echangeSchemas[component]
+	return schema.components[component]
 }

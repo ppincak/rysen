@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/ppincak/rysen/binance"
+	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/monitor"
 	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/ws"
@@ -13,7 +13,7 @@ import (
 
 // Application component container
 type App struct {
-	Binance           *binance.Exchange
+	Exchanges         crypto.Exchanges
 	Bus               *bus.Bus
 	SchemaService     *schema.Service
 	AggregatorService *aggregator.Service

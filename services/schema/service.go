@@ -15,8 +15,10 @@ type Service struct {
 	aggregatorService *aggregator.Service
 	feedService       *feed.Service
 	scraperService    *scraper.Service
-	exchanges         map[string]crypto.Exchange
-	schemaInstances   map[string]*ExchangeSchemaInstance
+	exchanges         crypto.Exchanges
+	schemaBackup      *SchemaBackup
+	schemas           map[string]*ExchangeSchemaMetadata
+	schemaInstances   map[string]*ExchangeSchema
 	lock              *sync.RWMutex
 }
 
@@ -24,25 +26,33 @@ type Service struct {
 func NewService(
 	aggregatorService *aggregator.Service,
 	feedService *feed.Service,
-	scraperService *scraper.Service) *Service {
+	scraperService *scraper.Service,
+	exchanges crypto.Exchanges) *Service {
 
 	return &Service{
 		aggregatorService: aggregatorService,
 		feedService:       feedService,
 		scraperService:    scraperService,
-		exchanges:         make(map[string]crypto.Exchange),
-		schemaInstances:   make(map[string]*ExchangeSchemaInstance),
+		exchanges:         exchanges,
+		schemaInstances:   make(map[string]*ExchangeSchema),
 		lock:              new(sync.RWMutex),
 	}
 }
 
-// Register an crypto exchange
-func (service *Service) RegisterExchange(name string, exchange crypto.Exchange) {
-	service.exchanges[name] = exchange
+// Intialize the whole schema from backup
+func (service *Service) InitializeFromBackup() (err error) {
+	schemas, err := service.schemaBackup.GetSchemas()
+	if err != nil {
+		return
+	}
+	for _, schema := range schemas {
+		service.Create(schema)
+	}
+	return
 }
 
 // Create the schema
-func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaInstance, error) {
+func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchema, error) {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
@@ -51,7 +61,7 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaI
 		return nil, api.NewError("Exchange [%s] not found", schema.Exchange)
 	}
 
-	instance := NewExchangeSchemaInstance(schema)
+	instance := NewExchangeSchema(schema)
 
 	// Create Scrapers
 	for i, metadata := range schema.Scrapers {
@@ -94,6 +104,17 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchemaI
 
 	service.schemaInstances[schema.Name] = instance
 	return instance, nil
+}
+
+// Delete schema
+func (service *Service) Delete(schemaName string) error {
+	schema, ok := service.schemaInstances[schemaName]
+	if !ok {
+		return api.NewError("Schema not found")
+	}
+	schema.Destroy()
+
+	return nil
 }
 
 // Return list of all registered schemas

@@ -1,22 +1,28 @@
 package server
 
 type Routes struct {
-	symbols         string
-	schema          string
-	statistics      string
-	live            string
-	feeds           string
+	// Crypto symbols
+	symbols string
+	// Schemas resource
+	schema string
+	// System statistics
+	statistics string
+	// Live feed
+	live string
+	// Feeds resource
+	feeds string
+	// Subscribtion to specific feed
 	subscribeToFeed string
 }
 
 func newRoutesV1() *Routes {
 	return &Routes{
-		symbols:         "/v1/symbols",
+		symbols:         "/v1//symbols/:exchange",
 		schema:          "/v1/schemas",
 		statistics:      "/v1/statistics",
-		live:            "v1/live",
-		feeds:           "v1/feeds",
-		subscribeToFeed: "v1/feeds/subscribe",
+		live:            "/v1/live",
+		feeds:           "/v1/feeds",
+		subscribeToFeed: "/v1/feeds/subscribe",
 	}
 }
 

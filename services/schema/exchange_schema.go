@@ -17,19 +17,9 @@ type ExchangeSchemaMetadata struct {
 	Feeds       []*feed.Metadata       `json:"feeds"`
 }
 
-// Creates empty ExchangeSchemaMetadata
-func NewExchangeSchemaMetadata(name string) *ExchangeSchemaMetadata {
-	return &ExchangeSchemaMetadata{
-		Name:        name,
-		Scrapers:    make([]*scraper.Metadata, 0),
-		Aggregators: make([]*aggregator.Metadata, 0),
-		Feeds:       make([]*feed.Metadata, 0),
-	}
-}
-
-// Note: maybe rename to ExchangeSchema
-// Represents single instance of the exchange schema
-type ExchangeSchemaInstance struct {
+// Represents instance of the exchange schema,
+// basically it is just a container for all the components
+type ExchangeSchema struct {
 	metadata *ExchangeSchemaMetadata
 
 	scrapers    []*scrape.Scraper
@@ -38,11 +28,21 @@ type ExchangeSchemaInstance struct {
 }
 
 // Create new schema instance
-func NewExchangeSchemaInstance(metadata *ExchangeSchemaMetadata) *ExchangeSchemaInstance {
-	return &ExchangeSchemaInstance{
+func NewExchangeSchema(metadata *ExchangeSchemaMetadata) *ExchangeSchema {
+	return &ExchangeSchema{
 		metadata:    metadata,
 		scrapers:    make([]*scrape.Scraper, len(metadata.Scrapers)),
 		aggregators: make([]*aggregate.Aggregator, len(metadata.Aggregators)),
 		feeds:       make([]*feed.Feed, len(metadata.Feeds)),
+	}
+}
+
+// Destroy the schema
+func (schema *ExchangeSchema) Destroy() {
+	for _, scraper := range schema.scrapers {
+		scraper.Stop()
+	}
+	for _, aggregator := range schema.aggregators {
+		aggregator.Stop()
 	}
 }

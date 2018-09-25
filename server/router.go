@@ -71,7 +71,7 @@ func (router *Router) createFeed(context *gin.Context) {
 		return
 	}
 
-	if feed, err := router.app.FeedService.Create(metadata); err != nil {
+	if feed, err := router.app.FeedService.Create(metadata); err == nil {
 		errors.ErrorBadRequest(context, err)
 	} else {
 		feed.Init()
@@ -81,7 +81,12 @@ func (router *Router) createFeed(context *gin.Context) {
 }
 
 func (router *Router) getSymbols(context *gin.Context) {
-	context.JSON(http.StatusOK, router.app.Binance.Symbols())
+	exchangeName := context.Param("exchange")
+	if exchange, ok := router.app.Exchanges[exchangeName]; !ok {
+		errors.BadRequest(context, "Invalid Exchange", "invalid.exchange")
+	} else {
+		context.JSON(http.StatusOK, exchange.Symbols())
+	}
 }
 
 func (router *Router) getStatistics(context *gin.Context) {

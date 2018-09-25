@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,10 +22,12 @@ func NewServer(app *App, config *Config) *Server {
 		config = DefaultConfig
 	}
 
-	// TODO: replace gin.Default
+	engine := gin.New()
+	engine.Use(NewLogger(log.DebugLevel))
+
 	return &Server{
 		config: config,
-		engine: gin.Default(),
+		engine: engine,
 		router: NewRouter(app),
 	}
 }

@@ -6,8 +6,9 @@ import (
 
 // Metadata structure describing aggregator
 type Metadata struct {
-	ReadTopic       string               `json:"readTopic"`
-	WriteTopic      string               `json:"writeTopic"`
+	ReadTopic  string `json:"readTopic"`
+	WriteTopic string `json:"writeTopic"`
+	// Note: probably may be removed
 	AggregationFunc string               `json:"aggregationFunc"`
 	ProcessFunc     string               `json:"processFunc"`
 	Condition       AggregationCondition `json:"condition"`
@@ -15,6 +16,6 @@ type Metadata struct {
 
 // Note: maybe create some dsl in the future
 type AggregationCondition struct {
-	Func  aggregate.ConditionType
-	Value int64
+	Func  aggregate.ConditionType `json:"func"`
+	Value int64                   `json:"value"`
 }

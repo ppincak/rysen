@@ -12,11 +12,11 @@ func TestLoadAndCreateSchema(t *testing.T) {
 		t.Error(err)
 		t.Fatalf("Schema not loaded")
 	}
-	if len(schema.echangeSchemas) == 0 {
+	if len(schema.components) == 0 {
 		t.Fatalf("Map of schemas is empty")
 	}
 
-	testSchema := schema.echangeSchemas["testSchema"]
+	testSchema := schema.components["testSchema"]
 	if testSchema == nil {
 		t.Fatalf("Test schema is empty")
 	}

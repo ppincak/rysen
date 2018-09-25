@@ -5,11 +5,29 @@ import (
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
+// Represent crypto exchange eg: Binance, Idex
+// each exchange should have its own API Client and Caller
+// and this Exchange is a form of packaging for this
 type Exchange interface {
+	// Get name of the exchange
+	Name() string
 	// Get all aggregations available for the exchange
 	Aggregations() aggregate.AggregationsMap
 	// Get caller
 	Caller() scrape.Caller
 	// Get all symbols available for exchange
 	Symbols() *Symbols
+}
+
+// Collections of multiple exchanges where the key is the name of exchange
+type Exchanges map[string]Exchange
+
+// Create new Exchange collection
+func NewExchanges() Exchanges {
+	return make(Exchanges)
+}
+
+// Register new Exchange
+func (exchanges Exchanges) Register(exchange Exchange) {
+	exchanges[exchange.Name()] = exchange
 }

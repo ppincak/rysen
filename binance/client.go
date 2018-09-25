@@ -5,12 +5,14 @@ import (
 	"crypto/sha256"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-resty/resty"
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/core"
 	"github.com/ppincak/rysen/monitor"
+	"github.com/ppincak/rysen/security"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -18,14 +20,12 @@ var _ monitor.Reporter = (*Client)(nil)
 
 type Client struct {
 	url     string
-	secret  *api.Secret
 	metrics *core.ApiMetrics
 }
 
-func NewClient(url string, secret *api.Secret) *Client {
+func NewClient(url string) *Client {
 	return &Client{
 		url:     url,
-		secret:  secret,
 		metrics: core.NewApiMetrics(),
 	}
 }
@@ -36,6 +36,7 @@ func (client *Client) Statistics() []*monitor.Statistic {
 	}
 }
 
+// Assemble the url
 func (client *Client) assembleUrl(url string) string {
 	var urlBuilder strings.Builder
 	urlBuilder.WriteString(client.url)
@@ -43,22 +44,55 @@ func (client *Client) assembleUrl(url string) string {
 	return urlBuilder.String()
 }
 
-func (client *Client) addApiKey(request *resty.Request) *resty.Request {
-	if client.secret == nil {
-		panic("Api secrets are missing")
+// Add ApiKey to request header
+func (client *Client) addApiKey(secret *security.Secret, request *resty.Request) *resty.Request {
+	if secret == nil {
+		panic("Api secret is nil")
 	}
-	return request.SetHeader("X-MBX-APIKEY", client.secret.ApiKey)
+	return request.SetHeader("X-MBX-APIKEY", secret.ApiKey)
 }
 
-func (client *Client) signQuery(request *resty.Request, value []byte) *resty.Request {
-	if client.secret == nil {
-		panic("Api secrets are missing")
+// Add timestamp to request
+func (client *Client) addTimestamp(request *resty.Request) *resty.Request {
+	return request.SetQueryParam("timestamp", string(time.Now().Unix()))
+}
+
+// Assemble all query parameters and form parameters into one
+func (client *Client) assembleData(request *resty.Request) string {
+	var urlBuilder strings.Builder
+
+	query := request.QueryParam.Encode()
+	form := request.FormData.Encode()
+
+	urlBuilder.WriteString(query)
+	if len(query) > 0 && len(form) > 0 {
+		urlBuilder.WriteString("&")
 	}
-	mac := hmac.New(sha256.New, []byte(client.secret.SecretKey))
-	mac.Write(value)
+	urlBuilder.WriteString(form)
+
+	return urlBuilder.String()
+}
+
+// Sign request
+func (client *Client) signQuery(secret *security.Secret, request *resty.Request) *resty.Request {
+	if secret == nil {
+		panic("Api secret is nil")
+	}
+
+	data := client.assembleData(request)
+	mac := hmac.New(sha256.New, []byte(secret.SecretKey))
+	mac.Write([]byte(data))
 	hash := mac.Sum(nil)
 
 	return request.SetQueryParam("signature", string(hash))
+}
+
+// Add ApiKey and sign the request
+func (client *Client) authenticateRequest(secret *security.Secret, request *resty.Request) *resty.Request {
+	client.addApiKey(secret, request)
+	client.addTimestamp(request)
+	client.signQuery(secret, request)
+	return request
 }
 
 func (client *Client) baseGetCallDefault(url string, queryParams map[string]string) (api.ApiResponse, error) {

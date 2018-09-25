@@ -8,37 +8,39 @@ import (
 	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/scrape"
+	"github.com/ppincak/rysen/security"
 )
 
 type Exchange struct {
-	Client *Client
+	client *Client
 	caller *Caller
-	Config *Config
+	config *Config
 	bus    *bus.Bus
 
-	symbols *crypto.Symbols
+	accounts []*security.Account
+	symbols  *crypto.Symbols
 }
 
 var _ crypto.Exchange = (*Exchange)(nil)
 var _ monitor.Reporter = (*Exchange)(nil)
 
 func NewExchange(config *Config, bus *bus.Bus) *Exchange {
-	client := NewClient(config.url, config.secret)
+	client := NewClient(config.url)
 
 	return &Exchange{
-		Client: client,
-		Config: config,
+		client: client,
+		config: config,
 		bus:    bus,
 	}
 }
 
 // Initialize the exchange
 func (exchange *Exchange) Initialize() error {
-	info, err := exchange.Client.ExchangeInfo()
+	info, err := exchange.client.ExchangeInfo()
 	if err != nil {
 		return api.NewError("Failed to initialize Binance Exchange")
 	}
-	caller := NewCaller(exchange.Client, exchange.bus)
+	caller := NewCaller(exchange.client, exchange.bus)
 	exchange.caller = caller
 	exchange.symbols = NewSymbols(info)
 
@@ -47,7 +49,12 @@ func (exchange *Exchange) Initialize() error {
 
 // Get monitoring statistics
 func (exchange *Exchange) Statistics() []*monitor.Statistic {
-	return exchange.Client.Statistics()
+	return exchange.client.Statistics()
+}
+
+// Get aggregations
+func (exchange *Exchange) Name() string {
+	return "binance"
 }
 
 // Get aggregations

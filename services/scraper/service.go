@@ -1,8 +1,6 @@
 package scraper
 
 import (
-	"sync"
-
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/crypto"
 
@@ -13,25 +11,18 @@ import (
 
 // Scraper Service
 type Service struct {
-	bus      *bus.Bus
-	lock     *sync.RWMutex
-	scrapers map[string]*scrape.Scraper
+	bus *bus.Bus
 }
 
 // Create new scraper service
 func NewService(bus *bus.Bus) *Service {
 	return &Service{
-		bus:      bus,
-		lock:     new(sync.RWMutex),
-		scrapers: make(map[string]*scrape.Scraper),
+		bus: bus,
 	}
 }
 
 // Create scraper from metadata
 func (service *Service) Create(metadata *Metadata, caller scrape.Caller, exchange crypto.Exchange) (*scrape.Scraper, error) {
-	defer service.lock.Unlock()
-	service.lock.Lock()
-
 	if collections.ArrayOfStringContains(exchange.Symbols().Symbols, metadata.Symbols) == false {
 		return nil, api.NewError("Symbols cannot be used for scraping [%#v]", metadata.Symbols)
 	}
@@ -55,6 +46,5 @@ func (service *Service) Create(metadata *Metadata, caller scrape.Caller, exchang
 	scraper := scrape.NewScraper(metadata.Topic, metadata.Symbols, callerFunc, metadata.Interval)
 	go scraper.Start()
 
-	service.scrapers[metadata.Topic] = scraper
 	return scraper, nil
 }

@@ -15,7 +15,17 @@
                 "scrapeFunction": "scrapePrice"
             }     
         ],        
-        "aggregators": [],
+        "aggregators": [
+            {
+                "readTopic": "ada/price",
+                "writeTopic": "ada/price/sumTrades",
+                "aggregationFunc": "averagePrices",
+                "condition": {
+                    "func": 0,
+                    "value": 5
+                }
+            }
+        ],
         "feeds": [
             {
                 "topic": "eos/price",
