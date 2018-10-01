@@ -11,8 +11,8 @@ import (
 	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/core"
+	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/security"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -45,11 +45,11 @@ func (client *Client) assembleUrl(url string) string {
 }
 
 // Add ApiKey to request header
-func (client *Client) addApiKey(secret *security.Secret, request *resty.Request) *resty.Request {
+func (client *Client) addApiKey(secret crypto.Secret, request *resty.Request) *resty.Request {
 	if secret == nil {
 		panic("Api secret is nil")
 	}
-	return request.SetHeader("X-MBX-APIKEY", secret.ApiKey)
+	return request.SetHeader("X-MBX-APIKEY", secret.ApiKey())
 }
 
 // Add timestamp to request
@@ -74,13 +74,13 @@ func (client *Client) assembleData(request *resty.Request) string {
 }
 
 // Sign request
-func (client *Client) signQuery(secret *security.Secret, request *resty.Request) *resty.Request {
+func (client *Client) signQuery(secret crypto.Secret, request *resty.Request) *resty.Request {
 	if secret == nil {
 		panic("Api secret is nil")
 	}
 
 	data := client.assembleData(request)
-	mac := hmac.New(sha256.New, []byte(secret.SecretKey))
+	mac := hmac.New(sha256.New, []byte(secret.SecretKey()))
 	mac.Write([]byte(data))
 	hash := mac.Sum(nil)
 
@@ -88,7 +88,7 @@ func (client *Client) signQuery(secret *security.Secret, request *resty.Request)
 }
 
 // Add ApiKey and sign the request
-func (client *Client) authenticateRequest(secret *security.Secret, request *resty.Request) *resty.Request {
+func (client *Client) authenticateRequest(secret crypto.Secret, request *resty.Request) *resty.Request {
 	client.addApiKey(secret, request)
 	client.addTimestamp(request)
 	client.signQuery(secret, request)

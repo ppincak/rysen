@@ -10,16 +10,20 @@ import (
 	"gonum.org/v1/gonum/floats"
 )
 
+// Aggregation options
 const (
 	AveragePricesFunc  aggregate.AggregationType = "averagePrices"
 	SumTradesFunc      aggregate.AggregationType = "sumTrades"
 	SumGroupTradesFunc aggregate.AggregationType = "sumGroupTrades"
+	OrdersVolumeFunc   aggregate.AggregationType = "OrdersVolume"
 )
 
+// Map of aggregations
 var Aggregations = map[aggregate.AggregationType]aggregate.AggregationFunc{
 	AveragePricesFunc:  AveragePrices,
 	SumTradesFunc:      SumTrades,
 	SumGroupTradesFunc: SumGroupTrades,
+	OrdersVolumeFunc:   OrdersVolume,
 }
 
 // Average prices
@@ -33,7 +37,7 @@ func AveragePrices(message interface{}, lastEntry interface{}, from int64) (inte
 		}
 		return math.NewAverage(prices), nil
 	}
-	return nil, api.NewError("Invalid assertion")
+	return nil, api.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
 }
 
 // Create map from array of trades
@@ -101,4 +105,29 @@ func SumGroupTrades(message interface{}, lastEntry interface{}, from int64) (int
 		priceQuantity[trade.PriceFloat64()] = append(val, trade.QuantityFloat64())
 	}
 	return math.SumGroupedByFloat64(priceQuantity), nil
+}
+
+// Note: subject to possible optimization
+// Get volume of orders
+func OrdersVolume(message interface{}, lastEntry interface{}, from int64) (interface{}, error) {
+	if models, ok := message.([]interface{}); ok {
+		asks := 0.0
+		bids := 0.0
+		count := 0
+		for _, m := range models {
+			if orderBook, ok := m.(*model.OrderBook); ok {
+				processed := orderBook.ProcessAll()
+				asks += processed.Sum(processed.Asks)
+				bids += processed.Sum(processed.Bids)
+				count++
+			}
+		}
+
+		return map[string]interface{}{
+			"sell":  asks,
+			"buy":   bids,
+			"count": count,
+		}, nil
+	}
+	return nil, api.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
 }

@@ -7,6 +7,7 @@ type OrderBook struct {
 	Bids []interface{} `json:"bids"`
 }
 
+// Process all BookOrders
 func (book *OrderBook) ProcessAll() *OrderBookProcessed {
 	processed := NewOrderBookProcessed(len(book.Asks), len(book.Bids))
 
@@ -19,6 +20,7 @@ func (book *OrderBook) ProcessAll() *OrderBookProcessed {
 	return processed
 }
 
+// Process one BookOrder
 func (book *OrderBook) ProcessOne(order interface{}) *BookOrder {
 	if asserted, ok := order.([]interface{}); ok {
 		price, _ := converters.ToFloat64(asserted[0])
@@ -42,6 +44,14 @@ func NewOrderBookProcessed(askLen int, bidsLen int) *OrderBookProcessed {
 		Asks: make([]*BookOrder, askLen),
 		Bids: make([]*BookOrder, bidsLen),
 	}
+}
+
+func (orderBook *OrderBookProcessed) Sum(bookOrders []*BookOrder) float64 {
+	sum := 0.0
+	for _, bookOrder := range bookOrders {
+		sum += bookOrder.Volume
+	}
+	return sum
 }
 
 type BookOrder struct {

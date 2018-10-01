@@ -34,6 +34,16 @@ func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
 	}
 }
 
+func (service *Service) Initialize(feeds []*Metadata) (err error) {
+	for _, feed := range feeds {
+		_, err = service.Create(feed)
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
 // Get feed statistics
 func (service *Service) Statistics() []*monitor.Statistic {
 	defer service.lock.Unlock()

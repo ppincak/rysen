@@ -6,6 +6,7 @@ import (
 
 type ConditionType uint8
 
+// Condition types
 const (
 	TillSize ConditionType = iota
 	TillTime

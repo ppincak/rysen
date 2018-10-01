@@ -8,7 +8,6 @@ import (
 	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/scrape"
-	"github.com/ppincak/rysen/security"
 )
 
 type Exchange struct {
@@ -17,8 +16,7 @@ type Exchange struct {
 	config *Config
 	bus    *bus.Bus
 
-	accounts []*security.Account
-	symbols  *crypto.Symbols
+	symbols *crypto.Symbols
 }
 
 var _ crypto.Exchange = (*Exchange)(nil)

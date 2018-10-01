@@ -6,11 +6,9 @@ import (
 
 // Metadata structure describing aggregator
 type Metadata struct {
-	ReadTopic  string `json:"readTopic"`
-	WriteTopic string `json:"writeTopic"`
-	// Note: probably may be removed
+	ReadTopic       string               `json:"readTopic"`
+	WriteTopic      string               `json:"writeTopic"`
 	AggregationFunc string               `json:"aggregationFunc"`
-	ProcessFunc     string               `json:"processFunc"`
 	Condition       AggregationCondition `json:"condition"`
 }
 

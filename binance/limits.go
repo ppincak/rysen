@@ -1,5 +1,0 @@
-package binance
-
-func NewLimits() {
-
-}

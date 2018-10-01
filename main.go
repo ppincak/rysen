@@ -1,13 +1,13 @@
 package main
 
 import (
-	"flag"
-
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/services/aggregator"
 	"github.com/ppincak/rysen/services/feed"
 	"github.com/ppincak/rysen/services/schema"
 	"github.com/ppincak/rysen/services/scraper"
+	"github.com/ppincak/rysen/services/security"
+	"github.com/syndtr/goleveldb/leveldb"
 
 	"github.com/ppincak/rysen/monitor"
 	b "github.com/ppincak/rysen/pkg/bus"
@@ -19,29 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func iniFlags() (string, string, string) {
-	schemaFile := flag.String("schema", "", "Schema json file")
-	accountsFile := flag.String("accounts", "", "Accounts json file")
-	key := flag.String("decryptionKey", "", "Decryption key")
-
-	flag.Parse()
-
-	return *schemaFile, *accountsFile, *key
-}
-
-func iniBinance(bus *b.Bus) *binance.Exchange {
-	binanceConfig := binance.NewConfig("https://api.binance.com")
-	exchange := binance.NewExchange(binanceConfig, bus)
-	err := exchange.Initialize()
-	if err != nil {
-		panic(err)
-	}
-	return exchange
-}
-
 func main() {
-	//schemaFile, accountsFile, decryptionKey := iniFlags()
-
 	// Setup logging
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
@@ -49,7 +27,12 @@ func main() {
 	bus := b.NewBus()
 	go bus.Start()
 
-	binanceExchange := iniBinance(bus)
+	binanceConfig := binance.NewConfig("https://api.binance.com")
+	binanceExchange := binance.NewExchange(binanceConfig, bus)
+	err := binanceExchange.Initialize()
+	if err != nil {
+		return
+	}
 
 	exchanges := crypto.NewExchanges()
 	exchanges.Register(binanceExchange)
@@ -57,9 +40,30 @@ func main() {
 	wsHandler := ws.NewHandler(nil)
 
 	aggregatorService := aggregator.NewService(bus)
-	feedService := feed.NewService(bus, wsHandler)
 	scraperService := scraper.NewService(bus)
-	schemaService := schema.NewService(aggregatorService, feedService, scraperService, exchanges)
+
+	db, err := leveldb.OpenFile("./db", nil)
+	if err != nil {
+		return
+	}
+
+	securityPersistence := security.NewPersistence(db, nil)
+	accounts, err := securityPersistence.GetAccounts()
+	if err != nil {
+		return
+	}
+
+	securityService := security.NewService()
+	securityService.Initialize(accounts)
+
+	feedPersistence := feed.NewPersistence(db, nil)
+	feeds, err := feedPersistence.GetFeeds()
+	if err != nil {
+		return
+	}
+
+	feedService := feed.NewService(bus, wsHandler)
+	feedService.Initialize(feeds)
 
 	// Register all monitors
 	monitor := monitor.NewMonitor()
@@ -67,22 +71,38 @@ func main() {
 	monitor.Register(wsHandler)
 	monitor.Register(feedService)
 
-	schemas, _ := schema.LoadAndCreateSchema("./schema.json")
-	schemaService.Create(schemas.Component("testSchema"))
+	schemaPersistence := schema.NewPersistence(db, nil)
+	schemas, err := schemaPersistence.GetSchemas()
+	if err != nil {
+		return
+	}
 
-	schemaBackup := schema.NewSchemaBackup("./db", nil)
-	schemaBackup.Open()
-	schemaBackup.SaveSchema(schemas.Component("testSchema"))
+	schemaService := schema.NewService(
+		aggregatorService,
+		feedService,
+		scraperService,
+		exchanges)
+
+	schemaService.Initialize(schemas)
 
 	app := &server.App{
-		Bus:               bus,
-		Exchanges:         exchanges,
+		Bus:       bus,
+		Exchanges: exchanges,
+
+		FeedService:     feedService,
+		FeedPersistence: feedPersistence,
+
+		SecurityService:     securityService,
+		SecurityPersistence: securityPersistence,
+
 		SchemaService:     schemaService,
+		SchemaPersistence: schemaPersistence,
+
 		AggregatorService: aggregatorService,
-		FeedService:       feedService,
 		ScraperService:    scraperService,
-		Monitor:           monitor,
-		WsHandler:         wsHandler,
+
+		Monitor:   monitor,
+		WsHandler: wsHandler,
 	}
 
 	s := server.NewServer(app, nil)

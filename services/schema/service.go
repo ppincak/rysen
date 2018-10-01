@@ -16,7 +16,6 @@ type Service struct {
 	feedService       *feed.Service
 	scraperService    *scraper.Service
 	exchanges         crypto.Exchanges
-	schemaBackup      *SchemaBackup
 	schemas           map[string]*ExchangeSchemaMetadata
 	schemaInstances   map[string]*ExchangeSchema
 	lock              *sync.RWMutex
@@ -40,34 +39,40 @@ func NewService(
 }
 
 // Intialize the whole schema from backup
-func (service *Service) InitializeFromBackup() (err error) {
-	schemas, err := service.schemaBackup.GetSchemas()
-	if err != nil {
-		return
-	}
+func (service *Service) Initialize(schemas []*ExchangeSchemaMetadata) (err error) {
 	for _, schema := range schemas {
-		service.Create(schema)
+		_, err = service.Create(schema)
+		if err != nil {
+			return
+		}
 	}
 	return
 }
 
 // Create the schema
-func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchema, error) {
-	defer service.lock.Unlock()
+func (service *Service) Create(schema *ExchangeSchemaMetadata) (instance *ExchangeSchema, err error) {
 	service.lock.Lock()
+
+	defer func() {
+		service.lock.Unlock()
+
+		// Teardown in case of an error
+		if err != nil && instance != nil {
+			instance.Destroy()
+		}
+	}()
 
 	exchange, ok := service.exchanges[schema.Exchange]
 	if !ok {
 		return nil, api.NewError("Exchange [%s] not found", schema.Exchange)
 	}
-
-	instance := NewExchangeSchema(schema)
+	instance = NewExchangeSchema(schema)
 
 	// Create Scrapers
 	for i, metadata := range schema.Scrapers {
 		if scraper, err := service.scraperService.Create(metadata, exchange.Caller(), exchange); err != nil {
 			log.Error("Failed to create scraper from metadata [%#v]", metadata)
-			log.Error(err)
+			return nil, err
 		} else {
 			instance.scrapers[i] = scraper
 
@@ -79,27 +84,12 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (*ExchangeSchema,
 	for i, metadata := range schema.Aggregators {
 		if aggregator, err := service.aggregatorService.Create(metadata, exchange.Aggregations()); err != nil {
 			log.Error("Failed to create aggregator from metadata [%#v]", metadata)
-			log.Error(err)
+			return nil, err
 		} else {
 			instance.aggregators[i] = aggregator
 
 			log.Debugf("Created aggregator [%#v]", metadata)
 		}
-	}
-
-	// Create Feeds
-	for i, metadata := range schema.Feeds {
-		log.Debugf("Creating feed [%#v]", metadata)
-
-		if feed, err := service.feedService.Create(metadata); err != nil {
-			log.Error("Failed to create feed from metadata [%#v]", metadata)
-			log.Error(err)
-		} else {
-			instance.feeds[i] = feed
-
-			log.Debugf("Created feed from metadata [%#v]", metadata)
-		}
-
 	}
 
 	service.schemaInstances[schema.Name] = instance

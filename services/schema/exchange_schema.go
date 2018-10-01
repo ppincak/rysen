@@ -4,7 +4,6 @@ import (
 	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/scrape"
 	"github.com/ppincak/rysen/services/aggregator"
-	"github.com/ppincak/rysen/services/feed"
 	"github.com/ppincak/rysen/services/scraper"
 )
 
@@ -14,7 +13,6 @@ type ExchangeSchemaMetadata struct {
 	Exchange    string                 `json:"exchange"`
 	Scrapers    []*scraper.Metadata    `json:"scrapers"`
 	Aggregators []*aggregator.Metadata `json:"aggregators"`
-	Feeds       []*feed.Metadata       `json:"feeds"`
 }
 
 // Represents instance of the exchange schema,
@@ -24,7 +22,6 @@ type ExchangeSchema struct {
 
 	scrapers    []*scrape.Scraper
 	aggregators []*aggregate.Aggregator
-	feeds       []*feed.Feed
 }
 
 // Create new schema instance
@@ -33,7 +30,6 @@ func NewExchangeSchema(metadata *ExchangeSchemaMetadata) *ExchangeSchema {
 		metadata:    metadata,
 		scrapers:    make([]*scrape.Scraper, len(metadata.Scrapers)),
 		aggregators: make([]*aggregate.Aggregator, len(metadata.Aggregators)),
-		feeds:       make([]*feed.Feed, len(metadata.Feeds)),
 	}
 }
 

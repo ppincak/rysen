@@ -9,16 +9,29 @@ import (
 	"github.com/ppincak/rysen/services/feed"
 	"github.com/ppincak/rysen/services/schema"
 	"github.com/ppincak/rysen/services/scraper"
+	"github.com/ppincak/rysen/services/security"
 )
 
 // Application component container
 type App struct {
-	Exchanges         crypto.Exchanges
-	Bus               *bus.Bus
+	Bus       *bus.Bus
+	Exchanges crypto.Exchanges
+
+	// Feed
+	FeedService     *feed.Service
+	FeedPersistence *feed.Persistence
+
+	// Schema
 	SchemaService     *schema.Service
+	SchemaPersistence *schema.Persistence
+
+	// Security
+	SecurityService     *security.Service
+	SecurityPersistence *security.Persistence
+
 	AggregatorService *aggregator.Service
-	FeedService       *feed.Service
 	ScraperService    *scraper.Service
-	Monitor           *monitor.Monitor
-	WsHandler         *ws.Handler
+
+	Monitor   *monitor.Monitor
+	WsHandler *ws.Handler
 }
