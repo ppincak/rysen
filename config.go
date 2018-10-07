@@ -1,6 +1,8 @@
 package main
 
 type Config struct {
-	MaxProcs      int
-	DecryptionKey string
+	MaxProcs      int      `json:"maxProcs"`
+	ServerPort    int      `json:"serverPort"`
+	DecryptionKey string   `json:"decryptionKey"`
+	KafkaBrokers  []string `json:"kafkaBrokers"`
 }

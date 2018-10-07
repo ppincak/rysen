@@ -4,6 +4,7 @@ import (
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/services/aggregator"
 	"github.com/ppincak/rysen/services/feed"
+	"github.com/ppincak/rysen/services/publisher"
 	"github.com/ppincak/rysen/services/schema"
 	"github.com/ppincak/rysen/services/scraper"
 	"github.com/ppincak/rysen/services/security"
@@ -53,6 +54,8 @@ func main() {
 		return
 	}
 
+	publisherService := publisher.NewService(bus, nil)
+
 	securityService := security.NewService()
 	securityService.Initialize(accounts)
 
@@ -91,6 +94,8 @@ func main() {
 
 		FeedService:     feedService,
 		FeedPersistence: feedPersistence,
+
+		PublisherService: publisherService,
 
 		SecurityService:     securityService,
 		SecurityPersistence: securityPersistence,

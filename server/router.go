@@ -27,6 +27,7 @@ func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(RoutesV1.symbols, router.getSymbols)
 	engine.GET(RoutesV1.live, router.getLive)
 	engine.GET(RoutesV1.feeds, router.getFeeds)
+	engine.GET(RoutesV1.clientFeeds, router.getClientFeeds)
 	engine.POST(RoutesV1.feeds, router.createFeed)
 	engine.POST(RoutesV1.subscribeToFeed, router.subscribeToFeed)
 	engine.GET(RoutesV1.schema, router.getSchemas)
@@ -54,6 +55,15 @@ func (router *Router) getFeeds(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.FeedService.ListFeeds())
 }
 
+func (router *Router) getClientFeeds(context *gin.Context) {
+	sessionId := context.Param("sessionId")
+	if sessionId == "" {
+		errors.BadRequest(context, "Invalid session id", "invalid.sessionId")
+	} else {
+		context.JSON(http.StatusOK, router.app.FeedService.ListClientFeeds(sessionId))
+	}
+}
+
 func (router *Router) createFeed(context *gin.Context) {
 	var metadata *feed.Metadata
 	if err := context.ShouldBindJSON(&metadata); err != nil {
@@ -74,9 +84,17 @@ func (router *Router) createFeed(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
+func (router *Router) getPublishers(context *gin.Context) {
+	context.JSON(http.StatusOK, router.app.PublisherService.ListPublishers())
+}
+
+func (router *Router) createPublisher(context *gin.Context) {
+
+}
+
 func (router *Router) subscribeToFeed(context *gin.Context) {
 	clientId := context.DefaultQuery("clientId", "")
-	feed := context.DefaultQuery("feed", "")
+	feed := context.Param("feed")
 	if clientId == "" {
 		errors.BadRequest(context, "Missing clientId param", "missing.clienId")
 		return

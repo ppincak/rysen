@@ -34,6 +34,7 @@ func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
 	}
 }
 
+// Initialize the service
 func (service *Service) Initialize(feeds []*Metadata) (err error) {
 	for _, feed := range feeds {
 		_, err = service.Create(feed)
@@ -106,6 +107,17 @@ func (service *Service) ListFeeds() []*Metadata {
 	for _, value := range service.feeds {
 		list[i] = value.Metadata
 		i++
+	}
+	return list
+}
+
+// List all client feeds
+func (service *Service) ListClientFeeds(sessionId string) []*Metadata {
+	list := make([]*Metadata, 0)
+	if feeds, ok := service.clientFeeds[sessionId]; ok {
+		for _, feed := range feeds {
+			list = append(list, feed.Metadata)
+		}
 	}
 	return list
 }

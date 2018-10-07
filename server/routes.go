@@ -10,7 +10,8 @@ type Routes struct {
 	// Live feed
 	live string
 	// Feeds resource
-	feeds string
+	feeds       string
+	clientFeeds string
 	// Subscribtion to specific feed
 	subscribeToFeed string
 }
@@ -22,7 +23,8 @@ func newRoutesV1() *Routes {
 		statistics:      "/v1/statistics",
 		live:            "/v1/live",
 		feeds:           "/v1/feeds",
-		subscribeToFeed: "/v1/feeds/subscribe",
+		clientFeeds:     "/v1/feeds/client/:sessionId",
+		subscribeToFeed: "/v1/feeds/:feedName/subscribe",
 	}
 }
 
