@@ -3,7 +3,7 @@ package converters
 import (
 	"strconv"
 
-	"github.com/ppincak/rysen/api"
+	"github.com/ppincak/rysen/pkg/errors"
 )
 
 // Convert value to float64
@@ -21,5 +21,5 @@ func ToFloat64(value interface{}) (float64, error) {
 		return 0, err
 	}
 
-	return 0, api.NewError("Failed to convert")
+	return 0, errors.NewError("Failed to convert")
 }

@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
-	"github.com/ppincak/rysen/api"
 
 	"github.com/ppincak/rysen/monitor"
+	"github.com/ppincak/rysen/pkg/errors"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"
@@ -54,7 +54,7 @@ func (handler *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) (
 	ws, err := handler.upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Error(err)
-		return nil, api.NewError("Failed to upgrade connection to Websocket")
+		return nil, errors.NewError("Failed to upgrade connection to Websocket")
 	}
 
 	client := NewClient(ws, handler)

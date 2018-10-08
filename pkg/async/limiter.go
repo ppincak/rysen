@@ -1,8 +1,6 @@
 package async
 
-import (
-	"github.com/ppincak/rysen/api"
-)
+import "github.com/ppincak/rysen/pkg/errors"
 
 type Limiter struct {
 	*Counter
@@ -19,7 +17,7 @@ func NewLimiter(limit int64) *Limiter {
 func (limiter *Limiter) IncLim() error {
 	limiter.Inc()
 	if limiter.Value() >= limiter.limit {
-		return api.NewError("Limit of [%d] exceeded", limiter.limit)
+		return errors.NewError("Limit of [%d] exceeded", limiter.limit)
 	}
 	return nil
 }

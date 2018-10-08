@@ -4,10 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/ppincak/rysen/api"
-
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	"github.com/ppincak/rysen/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -59,7 +58,7 @@ func (client *Client) Write(packet *Packet) error {
 	if err != nil {
 		log.Error("Failed to marshall message")
 
-		return api.NewError("Failed to marshall message")
+		return errors.NewError("Failed to marshall message")
 	}
 	client.writec <- bytes
 	return nil

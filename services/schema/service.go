@@ -3,8 +3,8 @@ package schema
 import (
 	"sync"
 
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/crypto"
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/services/aggregator"
 	"github.com/ppincak/rysen/services/feed"
 	"github.com/ppincak/rysen/services/scraper"
@@ -64,7 +64,7 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (instance *Exchan
 
 	exchange, ok := service.exchanges[schema.Exchange]
 	if !ok {
-		return nil, api.NewError("Exchange [%s] not found", schema.Exchange)
+		return nil, errors.NewError("Exchange [%s] not found", schema.Exchange)
 	}
 	instance = NewExchangeSchema(schema)
 
@@ -100,7 +100,7 @@ func (service *Service) Create(schema *ExchangeSchemaMetadata) (instance *Exchan
 func (service *Service) Delete(schemaName string) error {
 	schema, ok := service.schemaInstances[schemaName]
 	if !ok {
-		return api.NewError("Schema not found")
+		return errors.NewError("Schema not found")
 	}
 	schema.Destroy()
 

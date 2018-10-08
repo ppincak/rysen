@@ -3,8 +3,8 @@ package feed
 import (
 	"reflect"
 
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/pkg/aggregate"
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
@@ -16,5 +16,5 @@ func TransformForWsClient(message interface{}) (interface{}, error) {
 	case *aggregate.AggregationResult:
 		return message.(*aggregate.AggregationResult).Result, nil
 	}
-	return nil, api.NewError("Unhandled type [%s]", reflect.TypeOf(message).Name)
+	return nil, errors.NewError("Unhandled type [%s]", reflect.TypeOf(message).Name)
 }

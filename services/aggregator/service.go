@@ -1,9 +1,9 @@
 package aggregator
 
 import (
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/pkg/aggregate"
 	b "github.com/ppincak/rysen/pkg/bus"
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
@@ -31,7 +31,7 @@ func (service *Service) Create(metadata *Metadata, aggregations aggregate.Aggreg
 
 	aggregationFunc, ok := aggregations[aggregate.AggregationType(metadata.AggregationFunc)]
 	if !ok {
-		return nil, api.NewError("Aggregation function ot found")
+		return nil, errors.NewError("Aggregation function ot found")
 	}
 
 	aggregator := aggregate.NewAggregator(
@@ -52,6 +52,6 @@ func ProcessCallerEvent(event *b.BusEvent) (interface{}, error) {
 	if assertion, ok := event.Message.(*scrape.CallerEvent); ok {
 		return assertion.Data, nil
 	} else {
-		return nil, api.NewError("Failed to assert")
+		return nil, errors.NewError("Failed to assert")
 	}
 }

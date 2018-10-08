@@ -3,9 +3,8 @@ package errors
 import (
 	"net/http"
 
-	"github.com/ppincak/rysen/api"
-
 	"github.com/gin-gonic/gin"
+	"github.com/ppincak/rysen/pkg/errors"
 )
 
 type ApiError struct {
@@ -22,7 +21,7 @@ func NewApiError(message string, key string) *ApiError {
 
 func ErrorBadRequest(context *gin.Context, err error) {
 	var result *ApiError
-	if assertion, ok := err.(api.Error); ok {
+	if assertion, ok := err.(errors.Error); ok {
 		result = NewApiError(assertion.Message, assertion.Code)
 	} else {
 		result = NewApiError("Internal server error", "internal.server.error")

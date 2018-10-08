@@ -1,12 +1,12 @@
 package binance
 
 import (
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/data"
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/monitor"
 	"github.com/ppincak/rysen/pkg/aggregate"
 	"github.com/ppincak/rysen/pkg/bus"
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
@@ -36,7 +36,7 @@ func NewExchange(config *Config, bus *bus.Bus) *Exchange {
 func (exchange *Exchange) Initialize() error {
 	info, err := exchange.client.ExchangeInfo()
 	if err != nil {
-		return api.NewError("Failed to initialize Binance Exchange")
+		return errors.NewError("Failed to initialize Binance Exchange")
 	}
 	caller := NewCaller(exchange.client, exchange.bus)
 	exchange.caller = caller

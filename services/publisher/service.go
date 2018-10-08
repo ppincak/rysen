@@ -4,9 +4,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ppincak/rysen/api"
-
 	"github.com/ppincak/rysen/pkg/bus"
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/pkg/pub"
 )
 
@@ -36,7 +35,7 @@ func (service *Service) CreatePublisher(model *Model) (pub.Publisher, error) {
 	key := service.assembleKey(model)
 
 	if _, ok := service.publishers[key]; ok {
-		return nil, api.NewError("Publisher [%s] already exists", key)
+		return nil, errors.NewError("Publisher [%s] already exists", key)
 	}
 	publisher := NewKafkaPublisher(model, nil)
 	service.publishers[key] = publisher

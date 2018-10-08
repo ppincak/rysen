@@ -1,11 +1,11 @@
 package scraper
 
 import (
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/crypto"
 
 	"github.com/ppincak/rysen/pkg/bus"
 	"github.com/ppincak/rysen/pkg/collections"
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/pkg/scrape"
 )
 
@@ -24,12 +24,12 @@ func NewService(bus *bus.Bus) *Service {
 // Create scraper from metadata
 func (service *Service) Create(metadata *Metadata, caller scrape.Caller, exchange crypto.Exchange) (*scrape.Scraper, error) {
 	if collections.ArrayOfStringContains(exchange.Symbols().Symbols, metadata.Symbols) == false {
-		return nil, api.NewError("Symbols cannot be used for scraping [%#v]", metadata.Symbols)
+		return nil, errors.NewError("Symbols cannot be used for scraping [%#v]", metadata.Symbols)
 	}
 
 	callerFuncType, ok := scrape.StringToFunc[metadata.ScrapeFunc]
 	if !ok {
-		return nil, api.NewError("Invalid scrapeFunction [%s]", metadata.ScrapeFunc)
+		return nil, errors.NewError("Invalid scrapeFunction [%s]", metadata.ScrapeFunc)
 	}
 
 	var callerFunc scrape.CallerFunc

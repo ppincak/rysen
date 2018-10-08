@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Create new logger handler func
+// Create new logger handler function
 func NewLogger(level log.Level) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()

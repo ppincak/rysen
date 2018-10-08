@@ -8,11 +8,12 @@ import (
 	"time"
 
 	"github.com/go-resty/resty"
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/core"
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/monitor"
+	"github.com/ppincak/rysen/pkg/errors"
+	"github.com/ppincak/rysen/pkg/json"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -95,8 +96,8 @@ func (client *Client) authenticateRequest(secret crypto.Secret, request *resty.R
 	return request
 }
 
-func (client *Client) baseGetCallDefault(url string, queryParams map[string]string) (api.ApiResponse, error) {
-	var response api.ApiResponse
+func (client *Client) baseGetCallDefault(url string, queryParams map[string]string) (map[string]interface{}, error) {
+	var response map[string]interface{}
 	err := client.baseGetCall(url, queryParams, &response)
 	return response, err
 }
@@ -135,9 +136,9 @@ func (client *Client) handleResponse(resp *resty.Response, responseType interfac
 	case statusCode > 201:
 		log.Error("Request failed with statusCode %d", resp.StatusCode())
 
-		return api.NewError("Request failed with status code %d", resp.StatusCode())
+		return errors.NewError("Request failed with status code %d", resp.StatusCode())
 	}
-	return api.UnmarshallAs(resp.Body(), responseType)
+	return json.UnmarshallAs(resp.Body(), responseType)
 }
 
 func (client *Client) handleMetrics(err error) {
@@ -155,7 +156,7 @@ func (client *Client) ExchangeInfo() (*model.ExchangeInfo, error) {
 	}
 
 	var exchangeInfo model.ExchangeInfo
-	err = api.UnmarshallAs(resp.Body(), &exchangeInfo)
+	err = json.UnmarshallAs(resp.Body(), &exchangeInfo)
 	return &exchangeInfo, err
 }
 
@@ -167,8 +168,8 @@ func (client *Client) OrderBook(symbol string, limit uint32) (model.Model, error
 	return response, err
 }
 
-func (client *Client) OrderBookTicker(symbol string) (api.ApiResponse, error) {
-	var response api.ApiResponse
+func (client *Client) OrderBookTicker(symbol string) (map[string]interface{}, error) {
+	var response map[string]interface{}
 
 	err := client.baseQueryCall(Endpoints.OrderBookTicker, symbol, 0, &response)
 
@@ -180,9 +181,9 @@ func (client *Client) AggregateTrades(
 	limit uint32,
 	fromId uint64,
 	startTime uint64,
-	endTime uint64) (api.ApiResponse, error) {
+	endTime uint64) (map[string]interface{}, error) {
 
-	var response api.ApiResponse
+	var response map[string]interface{}
 
 	err := client.baseGetCall(Endpoints.AggregateTrades, map[string]string{
 		"symbol":    symbol,
@@ -198,9 +199,9 @@ func (client *Client) AggregateTrades(
 func (client *Client) HistoricalTrades(
 	symbol string,
 	limit uint32,
-	fromId uint64) (api.ApiResponse, error) {
+	fromId uint64) (map[string]interface{}, error) {
 
-	var response api.ApiResponse
+	var response map[string]interface{}
 
 	err := client.baseGetCall(Endpoints.AggregateTrades, map[string]string{
 		"symbol": symbol,
@@ -223,9 +224,9 @@ func (client *Client) Candlesticks(symbol string,
 	limit uint32,
 	interval string,
 	startTime uint64,
-	endTime uint64) (api.ApiResponse, error) {
+	endTime uint64) (map[string]interface{}, error) {
 
-	var response api.ApiResponse
+	var response map[string]interface{}
 
 	err := client.baseGetCall(Endpoints.Candlesticks, map[string]string{
 		"symbol":    symbol,
@@ -238,8 +239,8 @@ func (client *Client) Candlesticks(symbol string,
 	return response, err
 }
 
-func (client *Client) Ticker24h(symbol string) (api.ApiResponse, error) {
-	var response api.ApiResponse
+func (client *Client) Ticker24h(symbol string) (map[string]interface{}, error) {
+	var response map[string]interface{}
 
 	err := client.baseGetCall(Endpoints.Ticker24, map[string]string{
 		"symbol": symbol,

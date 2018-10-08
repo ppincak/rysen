@@ -3,10 +3,10 @@ package data
 import (
 	"reflect"
 
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/binance/model"
 	"github.com/ppincak/rysen/math"
 	"github.com/ppincak/rysen/pkg/aggregate"
+	"github.com/ppincak/rysen/pkg/errors"
 	"gonum.org/v1/gonum/floats"
 )
 
@@ -37,7 +37,7 @@ func AveragePrices(message interface{}, lastEntry interface{}, from int64) (inte
 		}
 		return math.NewAverage(prices), nil
 	}
-	return nil, api.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
+	return nil, errors.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
 }
 
 // Create map from array of trades
@@ -66,7 +66,7 @@ func TradesMap(message interface{}, lastEntry interface{}, from int64) (map[int6
 		}
 		return trades, nil
 	}
-	return nil, api.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
+	return nil, errors.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
 }
 
 // Sum trades
@@ -129,5 +129,5 @@ func OrdersVolume(message interface{}, lastEntry interface{}, from int64) (inter
 			"count": count,
 		}, nil
 	}
-	return nil, api.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
+	return nil, errors.NewError("Invalid assertion of type [%s]", reflect.TypeOf(message).Name)
 }

@@ -3,9 +3,9 @@ package feed
 import (
 	"sync"
 
-	"github.com/ppincak/rysen/api"
 	"github.com/ppincak/rysen/monitor"
 
+	"github.com/ppincak/rysen/pkg/errors"
 	"github.com/ppincak/rysen/pkg/ws"
 
 	"github.com/ppincak/rysen/pkg/bus"
@@ -65,7 +65,7 @@ func (service *Service) Create(metadata *Metadata) (*Feed, error) {
 	service.lock.Lock()
 
 	if _, ok := service.feeds[metadata.Name]; ok {
-		return nil, api.NewError("Feed with name [%s] already exists", metadata.Name)
+		return nil, errors.NewError("Feed with name [%s] already exists", metadata.Name)
 	}
 
 	feed := NewFeed(metadata, service.bus, service.handler, nil)
@@ -96,7 +96,7 @@ func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 
 		return nil
 	} else {
-		return api.NewError("Feed not found")
+		return errors.NewError("Feed not found")
 	}
 }
 

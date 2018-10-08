@@ -24,10 +24,7 @@ func NewKafkaPublisher(model *Model, brokers []string) *KafkaPublisher {
 	}
 }
 
-func (publisher *KafkaPublisher) publishHandler(event *b.BusEvent) {
-	publisher.Publish(event)
-}
-
+// Initialize the publisher
 func (publisher *KafkaPublisher) Init(bus *b.Bus) {
 	publisher.writer = kafka.NewWriter(kafka.WriterConfig{
 		Brokers:  publisher.brokers,
@@ -42,14 +39,22 @@ func (publisher *KafkaPublisher) Init(bus *b.Bus) {
 	go publisher.transformer.Start()
 }
 
+// Destroy publisher
 func (publisher *KafkaPublisher) Destroy() {
 	publisher.transformer.Stop()
 }
 
+// Return topic
 func (publisher *KafkaPublisher) Topic() string {
 	return publisher.KafkaTopic
 }
 
+// Publish to kafka broker
 func (publisher *KafkaPublisher) Publish(message interface{}) {
 	publisher.writer.WriteMessages(context.Background())
+}
+
+// Handler for publishing
+func (publisher *KafkaPublisher) publishHandler(event *b.BusEvent) {
+	publisher.Publish(event)
 }

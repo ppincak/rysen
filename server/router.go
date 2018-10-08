@@ -21,24 +21,26 @@ func NewRouter(app *App) *Router {
 	}
 }
 
-// Initialize Router
+// initialize http Router
 func (router *Router) Init(engine *gin.Engine) {
-	engine.GET(RoutesV1.statistics, router.getStatistics)
-	engine.GET(RoutesV1.symbols, router.getSymbols)
-	engine.GET(RoutesV1.live, router.getLive)
-	engine.GET(RoutesV1.feeds, router.getFeeds)
-	engine.GET(RoutesV1.clientFeeds, router.getClientFeeds)
-	engine.POST(RoutesV1.feeds, router.createFeed)
-	engine.POST(RoutesV1.subscribeToFeed, router.subscribeToFeed)
-	engine.GET(RoutesV1.schema, router.getSchemas)
-	engine.POST(RoutesV1.schema, router.createSchema)
+	engine.GET(GetStatistics, router.getStatistics)
+	engine.GET(GetExchangeSymbols, router.getExchangeSymbols)
+	engine.GET(GetLiveFeed, router.getLiveFeed)
+	engine.GET(GetFeeds, router.getFeeds)
+	engine.GET(GetClientFeeds, router.getClientFeeds)
+	engine.POST(CreateFeed, router.createFeed)
+	engine.POST(SubscribeToFeed, router.subscribeToFeed)
+	engine.GET(GetSchemas, router.getSchemas)
+	engine.POST(CreateSchema, router.createSchema)
 }
 
+// get system statistics/metrics
 func (router *Router) getStatistics(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.Monitor.Statistics())
 }
 
-func (router *Router) getSymbols(context *gin.Context) {
+//get exchange symbols
+func (router *Router) getExchangeSymbols(context *gin.Context) {
 	exchangeName := context.Param("exchange")
 	if exchange, ok := router.app.Exchanges[exchangeName]; !ok {
 		errors.BadRequest(context, "Invalid Exchange", "invalid.exchange")
@@ -47,23 +49,22 @@ func (router *Router) getSymbols(context *gin.Context) {
 	}
 }
 
-func (router *Router) getLive(context *gin.Context) {
+// get live feed served as websocket
+func (router *Router) getLiveFeed(context *gin.Context) {
 	router.app.WsHandler.ServeWebSocket(context.Writer, context.Request)
 }
 
+// get list of feeds
 func (router *Router) getFeeds(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.FeedService.ListFeeds())
 }
 
+// get list of client feeds
 func (router *Router) getClientFeeds(context *gin.Context) {
-	sessionId := context.Param("sessionId")
-	if sessionId == "" {
-		errors.BadRequest(context, "Invalid session id", "invalid.sessionId")
-	} else {
-		context.JSON(http.StatusOK, router.app.FeedService.ListClientFeeds(sessionId))
-	}
+	context.JSON(http.StatusOK, router.app.FeedService.ListClientFeeds(context.Param("sessionId")))
 }
 
+// create a feed
 func (router *Router) createFeed(context *gin.Context) {
 	var metadata *feed.Metadata
 	if err := context.ShouldBindJSON(&metadata); err != nil {
@@ -84,23 +85,16 @@ func (router *Router) createFeed(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
+// get list of publishers
 func (router *Router) getPublishers(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.PublisherService.ListPublishers())
 }
 
-func (router *Router) createPublisher(context *gin.Context) {
-
-}
-
+// subscribe to a feed
 func (router *Router) subscribeToFeed(context *gin.Context) {
 	clientId := context.DefaultQuery("clientId", "")
-	feed := context.Param("feed")
 	if clientId == "" {
 		errors.BadRequest(context, "Missing clientId param", "missing.clienId")
-		return
-	}
-	if feed == "" {
-		errors.BadRequest(context, "Missing feed param", "missing.feed")
 		return
 	}
 	client := router.app.WsHandler.GetClient(clientId)
@@ -108,6 +102,7 @@ func (router *Router) subscribeToFeed(context *gin.Context) {
 		errors.BadRequest(context, "Invalid clientId", "invalid.clientId")
 		return
 	}
+	feed := context.Param("feed")
 	if router.app.FeedService.SubscribeTo(feed, client) != nil {
 		errors.BadRequest(context, "Invalid feed", "invalid.feed")
 		return
@@ -115,10 +110,12 @@ func (router *Router) subscribeToFeed(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
+// get list of schemas
 func (router *Router) getSchemas(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.SchemaService.ListSchemas())
 }
 
+// create a schema
 func (router *Router) createSchema(context *gin.Context) {
 	var schema *schema.ExchangeSchemaMetadata
 	if err := context.ShouldBindJSON(&schema); err != nil {
