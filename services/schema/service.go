@@ -66,6 +66,10 @@ func (service *Service) Create(schema *Model) (instance *ExchangeSchema, err err
 	if !ok {
 		return nil, errors.NewError("Exchange [%s] not found", schema.Exchange)
 	}
+	if _, ok := service.schemaInstances[schema.Name]; ok {
+		return nil, errors.NewError("Schema with name [%s] already exists", schema.Name)
+	}
+
 	instance = NewExchangeSchema(schema)
 
 	// Create Scrapers
@@ -94,6 +98,19 @@ func (service *Service) Create(schema *Model) (instance *ExchangeSchema, err err
 
 	service.schemaInstances[schema.Name] = instance
 	return instance, nil
+}
+
+// Update the schema
+func (service *Service) UpdateSchema(schema *Model) (*ExchangeSchema, error) {
+	var instance *ExchangeSchema
+	if i, ok := service.schemaInstances[schema.Name]; !ok {
+		return nil, errors.NewError("Schema with name [%s] not found", schema.Name)
+	} else {
+		instance = i
+	}
+	model := instance.model
+
+	return nil, nil
 }
 
 // Delete schema
