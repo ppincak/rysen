@@ -21,15 +21,15 @@ func NewService(bus *bus.Bus) *Service {
 	}
 }
 
-// Create scraper from metadata
-func (service *Service) Create(metadata *Metadata, caller scrape.Caller, exchange crypto.Exchange) (*scrape.Scraper, error) {
-	if collections.ArrayOfStringContains(exchange.Symbols().Symbols, metadata.Symbols) == false {
-		return nil, errors.NewError("Symbols cannot be used for scraping [%#v]", metadata.Symbols)
+// Create scraper from model
+func (service *Service) Create(model *Model, caller scrape.Caller, exchange crypto.Exchange) (*scrape.Scraper, error) {
+	if collections.ArrayOfStringContains(exchange.Symbols().Symbols, model.Symbols) == false {
+		return nil, errors.NewError("Symbols cannot be used for scraping [%#v]", model.Symbols)
 	}
 
-	callerFuncType, ok := scrape.StringToFunc[metadata.ScrapeFunc]
+	callerFuncType, ok := scrape.StringToFunc[model.ScrapeFunc]
 	if !ok {
-		return nil, errors.NewError("Invalid scrapeFunction [%s]", metadata.ScrapeFunc)
+		return nil, errors.NewError("Invalid scrapeFunction [%s]", model.ScrapeFunc)
 	}
 
 	var callerFunc scrape.CallerFunc
@@ -43,7 +43,7 @@ func (service *Service) Create(metadata *Metadata, caller scrape.Caller, exchang
 		callerFunc = caller.ScrapeTrades
 	}
 
-	scraper := scrape.NewScraper(metadata.Topic, metadata.Symbols, callerFunc, metadata.Interval)
+	scraper := scrape.NewScraper(model.Topic, model.Symbols, callerFunc, model.Interval)
 	go scraper.Start()
 
 	return scraper, nil

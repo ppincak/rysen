@@ -6,6 +6,7 @@ import (
 	"github.com/ppincak/rysen/pkg/errors"
 )
 
+// unmarshall as mao
 func Unmarshall(body []byte) (map[string]interface{}, error) {
 	if body == nil {
 		return nil, errors.NewError("Body is null")
@@ -19,6 +20,7 @@ func Unmarshall(body []byte) (map[string]interface{}, error) {
 	return m, nil
 }
 
+// unmarshall as given type
 func UnmarshallAs(body []byte, response interface{}) error {
 	if body == nil {
 		return errors.NewError("Body is null")

@@ -6,8 +6,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// TODO: scrape this solution
-
 const counterEventBufferSize = 50
 
 const (

@@ -55,7 +55,7 @@ func main() {
 	}
 
 	publisherService := publisher.NewService(bus, nil)
-
+	
 	securityService := security.NewService()
 	securityService.Initialize(accounts)
 

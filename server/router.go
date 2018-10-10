@@ -31,7 +31,9 @@ func (router *Router) Init(engine *gin.Engine) {
 	engine.POST(CreateFeed, router.createFeed)
 	engine.POST(SubscribeToFeed, router.subscribeToFeed)
 	engine.GET(GetSchemas, router.getSchemas)
+	engine.GET(GetSchema, router.getSchema)
 	engine.POST(CreateSchema, router.createSchema)
+	engine.DELETE(DeleteSchema, router.deleteSchema)
 }
 
 // get system statistics/metrics
@@ -66,18 +68,18 @@ func (router *Router) getClientFeeds(context *gin.Context) {
 
 // create a feed
 func (router *Router) createFeed(context *gin.Context) {
-	var metadata *feed.Metadata
-	if err := context.ShouldBindJSON(&metadata); err != nil {
+	var model *feed.Model
+	if err := context.ShouldBindJSON(&model); err != nil {
 		errors.BadRequest(context, "Deserialization failed", "deserialization.failed")
 		return
 	}
 
-	_, err := router.app.FeedService.Create(metadata)
+	_, err := router.app.FeedService.Create(model)
 	if err != nil {
 		errors.ErrorBadRequest(context, err)
 		return
 	}
-	err = router.app.FeedPersistence.SaveFeed(metadata)
+	err = router.app.FeedPersistence.SaveFeed(model)
 	if err != nil {
 		errors.ErrorBadRequest(context, err)
 		return
@@ -115,9 +117,19 @@ func (router *Router) getSchemas(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.SchemaService.ListSchemas())
 }
 
+// get single schema by name
+func (router *Router) getSchema(context *gin.Context) {
+	schemaName := context.Param("schemaName")
+	if schema, err := router.app.SchemaService.GetSchema(schemaName); err != nil {
+		errors.ErrorBadRequest(context, err)
+	} else {
+		context.JSON(http.StatusOK, schema)
+	}
+}
+
 // create a schema
 func (router *Router) createSchema(context *gin.Context) {
-	var schema *schema.ExchangeSchemaMetadata
+	var schema *schema.Model
 	if err := context.ShouldBindJSON(&schema); err != nil {
 		errors.BadRequest(context, "Deserialization failed", "deserialization.failed")
 		return
@@ -134,4 +146,13 @@ func (router *Router) createSchema(context *gin.Context) {
 		return
 	}
 	context.Status(http.StatusOK)
+}
+
+func (router *Router) deleteSchema(context *gin.Context) {
+	schemaName := context.Param("schemaName")
+	if err := router.app.SchemaService.DeleteSchema(schemaName); err != nil {
+		errors.ErrorBadRequest(context, err)
+	} else {
+		context.Status(http.StatusOK)
+	}
 }

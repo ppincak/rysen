@@ -35,7 +35,7 @@ func NewService(bus *bus.Bus, handler *ws.Handler) *Service {
 }
 
 // Initialize the service
-func (service *Service) Initialize(feeds []*Metadata) (err error) {
+func (service *Service) Initialize(feeds []*Model) (err error) {
 	for _, feed := range feeds {
 		_, err = service.Create(feed)
 		if err != nil {
@@ -60,19 +60,19 @@ func (service *Service) Statistics() []*monitor.Statistic {
 }
 
 // Create feed
-func (service *Service) Create(metadata *Metadata) (*Feed, error) {
+func (service *Service) Create(model *Model) (*Feed, error) {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
-	if _, ok := service.feeds[metadata.Name]; ok {
-		return nil, errors.NewError("Feed with name [%s] already exists", metadata.Name)
+	if _, ok := service.feeds[model.Name]; ok {
+		return nil, errors.NewError("Feed with name [%s] already exists", model.Name)
 	}
 
-	feed := NewFeed(metadata, service.bus, service.handler, nil)
+	feed := NewFeed(model, service.bus, service.handler, nil)
 	log.Infof("Feed [%s] created", feed.Name)
 
 	feed.Init()
-	service.feeds[metadata.Name] = feed
+	service.feeds[model.Name] = feed
 
 	return feed, nil
 }
@@ -101,22 +101,22 @@ func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 }
 
 // List all feeds
-func (service *Service) ListFeeds() []*Metadata {
-	list := make([]*Metadata, len(service.feeds))
+func (service *Service) ListFeeds() []*Model {
+	list := make([]*Model, len(service.feeds))
 	i := 0
 	for _, value := range service.feeds {
-		list[i] = value.Metadata
+		list[i] = value.Model
 		i++
 	}
 	return list
 }
 
 // List all client feeds
-func (service *Service) ListClientFeeds(sessionId string) []*Metadata {
-	list := make([]*Metadata, 0)
+func (service *Service) ListClientFeeds(sessionId string) []*Model {
+	list := make([]*Model, 0)
 	if feeds, ok := service.clientFeeds[sessionId]; ok {
 		for _, feed := range feeds {
-			list = append(list, feed.Metadata)
+			list = append(list, feed.Model)
 		}
 	}
 	return list

@@ -24,15 +24,15 @@ func NewPersistence(db *leveldb.DB, prefix *string) *Persistence {
 }
 
 // Save feed
-func (persistence *Persistence) SaveFeed(metadata *Metadata) error {
-	return persistence.Persist(metadata.Name, metadata)
+func (persistence *Persistence) SaveFeed(model *Model) error {
+	return persistence.Persist(model.Name, model)
 }
 
 // Get Feeds
-func (persistence *Persistence) GetFeeds() ([]*Metadata, error) {
-	feeds := make([]*Metadata, 0)
+func (persistence *Persistence) GetFeeds() ([]*Model, error) {
+	feeds := make([]*Model, 0)
 	err := persistence.Iterate(func(key []byte, value []byte) error {
-		var feed *Metadata
+		var feed *Model
 		err := json.Unmarshal(value, &feed)
 		if err != nil {
 			return err

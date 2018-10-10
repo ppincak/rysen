@@ -1,15 +1,15 @@
 package feed
 
-type Metadata struct {
+type Model struct {
 	Name              string `json:"name"`
 	Description       string `json:"description"`
 	Topic             string `json:"topic"`
 	EstimatedInterval int64  `json:"estimatedInterval"`
 }
 
-// Create Feed metadata
-func NewMetadata(topic string, name string, description string) *Metadata {
-	return &Metadata{
+// Create Feed model
+func NewModel(topic string, name string, description string) *Model {
+	return &Model{
 		Name:        name,
 		Description: description,
 		Topic:       topic,

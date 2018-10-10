@@ -17,6 +17,7 @@ type Service struct {
 	lock       *sync.RWMutex
 }
 
+// new service
 func NewService(bus *bus.Bus, kafkaBrokers []string) *Service {
 	return &Service{
 		bus:          bus,
@@ -24,10 +25,12 @@ func NewService(bus *bus.Bus, kafkaBrokers []string) *Service {
 	}
 }
 
+// assemble key
 func (service *Service) assembleKey(model *Model) string {
 	return strings.Join([]string{model.ReadTopic, model.KafkaTopic}, "/")
 }
 
+// create publisher
 func (service *Service) CreatePublisher(model *Model) (pub.Publisher, error) {
 	defer service.lock.Unlock()
 	service.lock.Unlock()
@@ -43,6 +46,7 @@ func (service *Service) CreatePublisher(model *Model) (pub.Publisher, error) {
 	return publisher, nil
 }
 
+// get list of publishers
 func (service *Service) ListPublishers() []*Model {
 	defer service.lock.RUnlock()
 	service.lock.RLock()

@@ -3,7 +3,9 @@ package server
 const (
 	GetExchangeSymbols = "/v1/symbols/:exchange"
 	GetSchemas         = "/v1/schemas"
+	GetSchema          = "/v1/schemas/:schemaName"
 	CreateSchema       = GetSchemas
+	DeleteSchema       = GetSchema
 	GetStatistics      = "/v1/statistics"
 	GetLiveFeed        = "/v1/feeds/live"
 	GetFeeds           = "/v1/feeds"

@@ -20,23 +20,23 @@ func NewService(bus *b.Bus) *Service {
 
 // Note: think of better implementation
 // Create aggregator
-func (service *Service) Create(metadata *Metadata, aggregations aggregate.AggregationsMap) (*aggregate.Aggregator, error) {
+func (service *Service) Create(model *Model, aggregations aggregate.AggregationsMap) (*aggregate.Aggregator, error) {
 	var conditionFunc aggregate.AggregationCondition
-	switch metadata.Condition.Func {
+	switch model.Condition.Func {
 	case aggregate.TillSize:
-		conditionFunc = aggregate.AggretateTillSize(int(metadata.Condition.Value))
+		conditionFunc = aggregate.AggretateTillSize(int(model.Condition.Value))
 	case aggregate.TillTime:
-		conditionFunc = aggregate.AggretateTillTime(metadata.Condition.Value)
+		conditionFunc = aggregate.AggretateTillTime(model.Condition.Value)
 	}
 
-	aggregationFunc, ok := aggregations[aggregate.AggregationType(metadata.AggregationFunc)]
+	aggregationFunc, ok := aggregations[aggregate.AggregationType(model.AggregationFunc)]
 	if !ok {
 		return nil, errors.NewError("Aggregation function ot found")
 	}
 
 	aggregator := aggregate.NewAggregator(
-		metadata.ReadTopic,
-		metadata.WriteTopic,
+		model.ReadTopic,
+		model.WriteTopic,
 		service.bus,
 		ProcessCallerEvent,
 		aggregationFunc,

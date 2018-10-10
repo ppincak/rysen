@@ -7,29 +7,29 @@ import (
 	"github.com/ppincak/rysen/services/scraper"
 )
 
-// Metadata for a single exchange
-type ExchangeSchemaMetadata struct {
-	Name        string                 `json:"name"`
-	Exchange    string                 `json:"exchange"`
-	Scrapers    []*scraper.Metadata    `json:"scrapers"`
-	Aggregators []*aggregator.Metadata `json:"aggregators"`
+// Model for a single exchange
+type Model struct {
+	Name        string              `json:"name"`
+	Exchange    string              `json:"exchange"`
+	Scrapers    []*scraper.Model    `json:"scrapers"`
+	Aggregators []*aggregator.Model `json:"aggregators"`
 }
 
 // Represents instance of the exchange schema,
 // basically it is just a container for all the components
 type ExchangeSchema struct {
-	metadata *ExchangeSchemaMetadata
+	model *Model
 
 	scrapers    []*scrape.Scraper
 	aggregators []*aggregate.Aggregator
 }
 
 // Create new schema instance
-func NewExchangeSchema(metadata *ExchangeSchemaMetadata) *ExchangeSchema {
+func NewExchangeSchema(model *Model) *ExchangeSchema {
 	return &ExchangeSchema{
-		metadata:    metadata,
-		scrapers:    make([]*scrape.Scraper, len(metadata.Scrapers)),
-		aggregators: make([]*aggregate.Aggregator, len(metadata.Aggregators)),
+		model:       model,
+		scrapers:    make([]*scrape.Scraper, len(model.Scrapers)),
+		aggregators: make([]*aggregate.Aggregator, len(model.Aggregators)),
 	}
 }
 

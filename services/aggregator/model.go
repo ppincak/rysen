@@ -4,8 +4,8 @@ import (
 	"github.com/ppincak/rysen/pkg/aggregate"
 )
 
-// Metadata structure describing aggregator
-type Metadata struct {
+// Model structure describing aggregator
+type Model struct {
 	ReadTopic       string               `json:"readTopic"`
 	WriteTopic      string               `json:"writeTopic"`
 	AggregationFunc string               `json:"aggregationFunc"`

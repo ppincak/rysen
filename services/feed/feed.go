@@ -10,7 +10,7 @@ import (
 )
 
 type Feed struct {
-	*Metadata
+	*Model
 
 	// map of clients connected to the feed
 	clients map[string]*ws.Client
@@ -36,13 +36,13 @@ type Feed struct {
 }
 
 // Create Feed
-func NewFeed(metadata *Metadata, b *bus.Bus, handler *ws.Handler, transformFunc bus.TransformFunc) *Feed {
+func NewFeed(model *Model, b *bus.Bus, handler *ws.Handler, transformFunc bus.TransformFunc) *Feed {
 	if transformFunc == nil {
 		transformFunc = TransformForWsClient
 	}
 
 	return &Feed{
-		Metadata:      metadata,
+		Model:         model,
 		bus:           b,
 		clients:       make(map[string]*ws.Client),
 		eventsc:       make(chan *bus.BusEvent),
@@ -71,7 +71,6 @@ func (feed *Feed) transform(event *bus.BusEvent) {
 	feed.metrics.MessagesSent.Add(int64(len(feed.clients)))
 }
 
-// Note: feed should some some event when client subscribes to a feed
 // Subscribe client to feed
 func (feed *Feed) subscribe(client *ws.Client) {
 	defer feed.lock.Unlock()

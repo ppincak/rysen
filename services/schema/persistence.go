@@ -25,15 +25,15 @@ func NewPersistence(db *leveldb.DB, prefix *string) *Persistence {
 }
 
 // Persist schema
-func (persistence *Persistence) SaveSchema(schema *ExchangeSchemaMetadata) (err error) {
+func (persistence *Persistence) SaveSchema(schema *Model) (err error) {
 	return persistence.Persist(schema.Name, schema)
 }
 
 // Get all persisted schemas
-func (persistence *Persistence) GetSchemas() ([]*ExchangeSchemaMetadata, error) {
-	list := make([]*ExchangeSchemaMetadata, 0)
+func (persistence *Persistence) GetSchemas() ([]*Model, error) {
+	list := make([]*Model, 0)
 	err := persistence.Iterate(func(key []byte, value []byte) error {
-		var exchangeSchema *ExchangeSchemaMetadata
+		var exchangeSchema *Model
 		err := json.Unmarshal(value, &exchangeSchema)
 		if err != nil {
 			return err
