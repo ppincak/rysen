@@ -64,6 +64,16 @@ func (client *Client) Write(packet *Packet) error {
 	return nil
 }
 
+// Send WS ping packet
+func (client *Client) ping() error {
+	client.conn.SetWriteDeadline(time.Now().Add(client.config.WriteWait))
+	if err := client.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+		log.Error("Failed to send ping request")
+		return err
+	}
+	return nil
+}
+
 // TODO refactor, should read Packet
 // Send message to clients read channel
 func (client *Client) Read(message []byte) {
@@ -154,8 +164,7 @@ func (client *Client) writePump() {
 				client.handler.metrics.WritesFailed.Inc()
 			}
 		case <-client.pongTicker.C:
-			conn.SetWriteDeadline(time.Now().Add(client.config.WriteWait))
-			if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
+			if client.ping() != nil {
 				return
 			}
 		}

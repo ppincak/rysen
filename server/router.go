@@ -33,15 +33,16 @@ func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(GetSchemas, router.getSchemas)
 	engine.GET(GetSchema, router.getSchema)
 	engine.POST(CreateSchema, router.createSchema)
+	engine.PUT(UpdateSchema, router.updateSchema)
 	engine.DELETE(DeleteSchema, router.deleteSchema)
 }
 
-// get system statistics/metrics
+// Get system statistics/metrics
 func (router *Router) getStatistics(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.Monitor.Statistics())
 }
 
-//get exchange symbols
+// Get exchange symbols
 func (router *Router) getExchangeSymbols(context *gin.Context) {
 	exchangeName := context.Param("exchange")
 	if exchange, ok := router.app.Exchanges[exchangeName]; !ok {
@@ -51,22 +52,22 @@ func (router *Router) getExchangeSymbols(context *gin.Context) {
 	}
 }
 
-// get live feed served as websocket
+// Get live feed served as websocket
 func (router *Router) getLiveFeed(context *gin.Context) {
 	router.app.WsHandler.ServeWebSocket(context.Writer, context.Request)
 }
 
-// get list of feeds
+// Get list of feeds
 func (router *Router) getFeeds(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.FeedService.ListFeeds())
 }
 
-// get list of client feeds
+// Get list of client feeds
 func (router *Router) getClientFeeds(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.FeedService.ListClientFeeds(context.Param("sessionId")))
 }
 
-// create a feed
+// Create a feed
 func (router *Router) createFeed(context *gin.Context) {
 	var model *feed.Model
 	if err := context.ShouldBindJSON(&model); err != nil {
@@ -87,24 +88,28 @@ func (router *Router) createFeed(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
-// get list of publishers
+// Get list of publishers
 func (router *Router) getPublishers(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.PublisherService.ListPublishers())
 }
 
-// subscribe to a feed
+// Subscribe to a feed
 func (router *Router) subscribeToFeed(context *gin.Context) {
-	clientId := context.DefaultQuery("clientId", "")
-	if clientId == "" {
-		errors.BadRequest(context, "Missing clientId param", "missing.clienId")
+	sessionId := context.DefaultQuery("sessionId", "")
+	if sessionId == "" {
+		errors.BadRequest(context, "Missing sessionId param", "missing.sessionId")
 		return
 	}
-	client := router.app.WsHandler.GetClient(clientId)
+	feed := context.DefaultQuery("feed", "")
+	if feed == "" {
+		errors.BadRequest(context, "Invalid feed", "invalid.feed")
+		return
+	}
+	client := router.app.WsHandler.GetClient(sessionId)
 	if client == nil {
-		errors.BadRequest(context, "Invalid clientId", "invalid.clientId")
+		errors.BadRequest(context, "Invalid sessionId", "invalid.sessionId")
 		return
 	}
-	feed := context.Param("feed")
 	if router.app.FeedService.SubscribeTo(feed, client) != nil {
 		errors.BadRequest(context, "Invalid feed", "invalid.feed")
 		return
@@ -112,12 +117,12 @@ func (router *Router) subscribeToFeed(context *gin.Context) {
 	context.Status(http.StatusOK)
 }
 
-// get list of schemas
+// Get list of schemas
 func (router *Router) getSchemas(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.SchemaService.ListSchemas())
 }
 
-// get single schema by name
+// Get single schema by name
 func (router *Router) getSchema(context *gin.Context) {
 	schemaName := context.Param("schemaName")
 	if schema, err := router.app.SchemaService.GetSchema(schemaName); err != nil {
@@ -127,15 +132,35 @@ func (router *Router) getSchema(context *gin.Context) {
 	}
 }
 
-// create a schema
+// Create a schema
 func (router *Router) createSchema(context *gin.Context) {
+	router.schemaHandler(context, router.app.SchemaService.CreateSchema)
+}
+
+// Update a schema
+func (router *Router) updateSchema(context *gin.Context) {
+	router.schemaHandler(context, router.app.SchemaService.UpdateSchema)
+}
+
+// Delete a schema
+func (router *Router) deleteSchema(context *gin.Context) {
+	schemaName := context.Param("schemaName")
+	if err := router.app.SchemaService.DeleteSchema(schemaName); err != nil {
+		errors.ErrorBadRequest(context, err)
+	} else {
+		context.Status(http.StatusOK)
+	}
+}
+
+// Schema handler
+func (router *Router) schemaHandler(context *gin.Context, handlerFunc func(*schema.Model) (*schema.ExchangeSchema, error)) {
 	var schema *schema.Model
 	if err := context.ShouldBindJSON(&schema); err != nil {
 		errors.BadRequest(context, "Deserialization failed", "deserialization.failed")
 		return
 	}
 
-	_, err := router.app.SchemaService.Create(schema)
+	_, err := handlerFunc(schema)
 	if err != nil {
 		errors.ErrorBadRequest(context, err)
 		return
@@ -146,13 +171,4 @@ func (router *Router) createSchema(context *gin.Context) {
 		return
 	}
 	context.Status(http.StatusOK)
-}
-
-func (router *Router) deleteSchema(context *gin.Context) {
-	schemaName := context.Param("schemaName")
-	if err := router.app.SchemaService.DeleteSchema(schemaName); err != nil {
-		errors.ErrorBadRequest(context, err)
-	} else {
-		context.Status(http.StatusOK)
-	}
 }

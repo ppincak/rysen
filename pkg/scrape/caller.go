@@ -6,22 +6,22 @@ type CallerFuncType uint32
 // All possible caller events
 const (
 	OrdersEvent CallerFuncType = iota
-	TradesEvent
 	PriceEvent
+	TradesEvent
 )
 
 // Mapping from caller func type to its string representation
 var FuncToString = map[CallerFuncType]string{
-	0: "scrapeOrders",
-	1: "scrapePrices",
-	2: "scrapeTrades",
+	OrdersEvent: "scrapeOrders",
+	PriceEvent:  "scrapePrices",
+	TradesEvent: "scrapeTrades",
 }
 
 // Mapping from string representation to caller func type
 var StringToFunc = map[string]CallerFuncType{
-	"scrapeOrders": 0,
-	"scrapePrice":  1,
-	"scrapeTrades": 2,
+	"scrapeOrders": OrdersEvent,
+	"scrapePrice":  PriceEvent,
+	"scrapeTrades": TradesEvent,
 }
 
 // Caller

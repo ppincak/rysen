@@ -1,6 +1,8 @@
 package main
 
 import (
+	"runtime"
+
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/services/aggregator"
 	"github.com/ppincak/rysen/services/feed"
@@ -21,6 +23,8 @@ import (
 )
 
 func main() {
+	runtime.GOMAXPROCS(4)
+
 	// Setup logging
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
@@ -55,7 +59,7 @@ func main() {
 	}
 
 	publisherService := publisher.NewService(bus, nil)
-	
+
 	securityService := security.NewService()
 	securityService.Initialize(accounts)
 

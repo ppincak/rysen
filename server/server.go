@@ -24,6 +24,8 @@ func NewServer(app *App, config *Config) *Server {
 
 	engine := gin.New()
 	engine.Use(NewLogger(log.DebugLevel))
+	engine.Use(NewCorsHandler())
+	engine.Use(NewOptionsHandler())
 
 	return &Server{
 		config: config,

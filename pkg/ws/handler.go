@@ -38,6 +38,7 @@ func NewHandler(config *Config) *Handler {
 		upgrader: &websocket.Upgrader{
 			ReadBufferSize:  config.ReadBufferSize,
 			WriteBufferSize: config.WriteBufferSize,
+			CheckOrigin:     CheckOriginAny,
 		},
 		metrics:           NewWsMetrics(),
 		onRemoveCallbacks: make(map[string]OnRemoveCallback),
@@ -62,6 +63,7 @@ func (handler *Handler) ServeWebSocket(w http.ResponseWriter, r *http.Request) (
 	go client.writePump()
 	// blocks till writepump isn't started
 	client.sendConnectPacket()
+	client.ping()
 
 	handler.addClient(client)
 	handler.metrics.Connects.Inc()

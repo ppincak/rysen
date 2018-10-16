@@ -41,7 +41,7 @@ func NewService(
 // Intialize the whole schema from backup
 func (service *Service) Initialize(schemas []*Model) (err error) {
 	for _, schema := range schemas {
-		_, err = service.Create(schema)
+		_, err = service.CreateSchema(schema)
 		if err != nil {
 			return
 		}
@@ -49,8 +49,8 @@ func (service *Service) Initialize(schemas []*Model) (err error) {
 	return
 }
 
-// Create the schema
-func (service *Service) Create(schema *Model) (instance *ExchangeSchema, err error) {
+// CreateSchema the schema
+func (service *Service) CreateSchema(schema *Model) (instance *ExchangeSchema, err error) {
 	service.lock.Lock()
 
 	defer func() {
@@ -72,11 +72,20 @@ func (service *Service) Create(schema *Model) (instance *ExchangeSchema, err err
 
 	instance = NewExchangeSchema(schema)
 
+	err = service.createSchema(schema, instance, exchange)
+	if err != nil {
+		return nil, err
+	} else {
+		return instance, err
+	}
+}
+
+func (service *Service) createSchema(schema *Model, instance *ExchangeSchema, exchange crypto.Exchange) (err error) {
 	// Create Scrapers
 	for i, model := range schema.Scrapers {
 		if scraper, err := service.scraperService.Create(model, exchange.Caller(), exchange); err != nil {
 			log.Error("Failed to create scraper from model [%#v]", model)
-			return nil, err
+			return err
 		} else {
 			instance.scrapers[i] = scraper
 
@@ -88,7 +97,7 @@ func (service *Service) Create(schema *Model) (instance *ExchangeSchema, err err
 	for i, model := range schema.Aggregators {
 		if aggregator, err := service.aggregatorService.Create(model, exchange.Aggregations()); err != nil {
 			log.Error("Failed to create aggregator from model [%#v]", model)
-			return nil, err
+			return err
 		} else {
 			instance.aggregators[i] = aggregator
 
@@ -97,24 +106,43 @@ func (service *Service) Create(schema *Model) (instance *ExchangeSchema, err err
 	}
 
 	service.schemaInstances[schema.Name] = instance
-	return instance, nil
+	return nil
 }
 
 // Update the schema
+// Note: may be not the best solution performance wise, but seems like a simplest option to implement
 func (service *Service) UpdateSchema(schema *Model) (*ExchangeSchema, error) {
+	defer service.lock.Unlock()
+	service.lock.Lock()
+
+	exchange, ok := service.exchanges[schema.Exchange]
+	if !ok {
+		return nil, errors.NewError("Exchange [%s] not found", schema.Exchange)
+	}
+
 	var instance *ExchangeSchema
 	if i, ok := service.schemaInstances[schema.Name]; !ok {
 		return nil, errors.NewError("Schema with name [%s] not found", schema.Name)
 	} else {
 		instance = i
 	}
-	model := instance.model
+	instance.Destroy()
 
-	return nil, nil
+	instance = NewExchangeSchema(schema)
+
+	err := service.createSchema(schema, instance, exchange)
+	if err != nil {
+		log.Error("Failed to create schema [%#v]", schema)
+		return nil, err
+	}
+	return instance, nil
 }
 
 // Delete schema
 func (service *Service) DeleteSchema(schemaName string) error {
+	defer service.lock.Unlock()
+	service.lock.Lock()
+
 	schema, ok := service.schemaInstances[schemaName]
 	if !ok {
 		return errors.NewError("Schema not found")
@@ -126,6 +154,9 @@ func (service *Service) DeleteSchema(schemaName string) error {
 
 // Return schema by name
 func (service *Service) GetSchema(schemaName string) (*Model, error) {
+	defer service.lock.RUnlock()
+	service.lock.RLock()
+
 	schema, ok := service.schemaInstances[schemaName]
 	if !ok {
 		return nil, errors.NewError("Schema not found")
