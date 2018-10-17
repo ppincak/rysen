@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 
+	"github.com/ppincak/rysen/pkg/ws"
 	"github.com/ppincak/rysen/services/feed"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,7 @@ func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(GetClientFeeds, router.getClientFeeds)
 	engine.POST(CreateFeed, router.createFeed)
 	engine.POST(SubscribeToFeed, router.subscribeToFeed)
+	engine.DELETE(UnsubscribeFromFeed, router.subscribeToFeed)
 	engine.GET(GetSchemas, router.getSchemas)
 	engine.GET(GetSchema, router.getSchema)
 	engine.POST(CreateSchema, router.createSchema)
@@ -95,26 +97,12 @@ func (router *Router) getPublishers(context *gin.Context) {
 
 // Subscribe to a feed
 func (router *Router) subscribeToFeed(context *gin.Context) {
-	sessionId := context.DefaultQuery("sessionId", "")
-	if sessionId == "" {
-		errors.BadRequest(context, "Missing sessionId param", "missing.sessionId")
-		return
-	}
-	feed := context.DefaultQuery("feed", "")
-	if feed == "" {
-		errors.BadRequest(context, "Invalid feed", "invalid.feed")
-		return
-	}
-	client := router.app.WsHandler.GetClient(sessionId)
-	if client == nil {
-		errors.BadRequest(context, "Invalid sessionId", "invalid.sessionId")
-		return
-	}
-	if router.app.FeedService.SubscribeTo(feed, client) != nil {
-		errors.BadRequest(context, "Invalid feed", "invalid.feed")
-		return
-	}
-	context.Status(http.StatusOK)
+	router.handleSubscription(context, router.app.FeedService.SubscribeTo)
+}
+
+// Unsubscribe from a feed
+func (router *Router) unsubscribeFrom(context *gin.Context) {
+	router.handleSubscription(context, router.app.FeedService.UnsubscribeFrom)
 }
 
 // Get list of schemas
@@ -134,12 +122,12 @@ func (router *Router) getSchema(context *gin.Context) {
 
 // Create a schema
 func (router *Router) createSchema(context *gin.Context) {
-	router.schemaHandler(context, router.app.SchemaService.CreateSchema)
+	router.handleSchema(context, router.app.SchemaService.CreateSchema)
 }
 
 // Update a schema
 func (router *Router) updateSchema(context *gin.Context) {
-	router.schemaHandler(context, router.app.SchemaService.UpdateSchema)
+	router.handleSchema(context, router.app.SchemaService.UpdateSchema)
 }
 
 // Delete a schema
@@ -152,8 +140,31 @@ func (router *Router) deleteSchema(context *gin.Context) {
 	}
 }
 
+func (router *Router) handleSubscription(context *gin.Context, handler func(name string, client *ws.Client) error) {
+	sessionId := context.DefaultQuery("sessionId", "")
+	if sessionId == "" {
+		errors.BadRequest(context, "Missing sessionId param", "missing.sessionId")
+		return
+	}
+	feed := context.DefaultQuery("feed", "")
+	if feed == "" {
+		errors.BadRequest(context, "Invalid feed", "invalid.feed")
+		return
+	}
+	client := router.app.WsHandler.GetClient(sessionId)
+	if client == nil {
+		errors.BadRequest(context, "Invalid sessionId", "invalid.sessionId")
+		return
+	}
+	if handler(feed, client) != nil {
+		errors.BadRequest(context, "Invalid feed", "invalid.feed")
+		return
+	}
+	context.Status(http.StatusOK)
+}
+
 // Schema handler
-func (router *Router) schemaHandler(context *gin.Context, handlerFunc func(*schema.Model) (*schema.ExchangeSchema, error)) {
+func (router *Router) handleSchema(context *gin.Context, handlerFunc func(*schema.Model) (*schema.ExchangeSchema, error)) {
 	var schema *schema.Model
 	if err := context.ShouldBindJSON(&schema); err != nil {
 		errors.BadRequest(context, "Deserialization failed", "deserialization.failed")

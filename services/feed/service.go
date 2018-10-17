@@ -100,6 +100,22 @@ func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 	}
 }
 
+// Unsubscribe from feed
+func (service *Service) UnsubscribeFrom(name string, client *ws.Client) error {
+	defer service.lock.Unlock()
+	service.lock.Lock()
+
+	if feed, ok := service.feeds[name]; ok {
+		delete(service.clientFeeds, client.GetSessionId())
+
+		feed.unsubscribe(client)
+
+		return nil
+	} else {
+		return errors.NewError("Feed not found")
+	}
+}
+
 // List all feeds
 func (service *Service) ListFeeds() []*Model {
 	list := make([]*Model, len(service.feeds))
