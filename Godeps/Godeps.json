@@ -38,6 +38,10 @@
 			"Rev": "70b3af33377e7aa25ae42977bed93cc6b90f0373"
 		},
 		{
+			"ImportPath": "github.com/golang/snappy",
+			"Rev": "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+		},
+		{
 			"ImportPath": "github.com/google/uuid",
 			"Comment": "0.2-21-gdec09d7",
 			"Rev": "dec09d789f3dba190787f8b4454c7d3c936fed9e"
@@ -68,9 +72,66 @@
 			"Rev": "94122c33edd36123c84d5368cfb2b69df93a0ec8"
 		},
 		{
+			"ImportPath": "github.com/onrik/logrus/filename",
+			"Rev": "c9849815bc7c2abf20d58e4bc06c242198ebb741"
+		},
+		{
+			"ImportPath": "github.com/segmentio/kafka-go",
+			"Comment": "v0.1.0",
+			"Rev": "48c37f796910d8154479aaa04ade5843ae4f55d0"
+		},
+		{
 			"ImportPath": "github.com/sirupsen/logrus",
 			"Comment": "v1.0.5-40-ge54a777",
 			"Rev": "e54a77765aca7bbdd8e56c1c54f60579968b2dc9"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/cache",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/comparer",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/errors",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/filter",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/iterator",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/journal",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/memdb",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/opt",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/storage",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/table",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
+		},
+		{
+			"ImportPath": "github.com/syndtr/goleveldb/leveldb/util",
+			"Rev": "ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd"
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",

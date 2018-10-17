@@ -3,6 +3,8 @@ package main
 import (
 	"runtime"
 
+	"github.com/onrik/logrus/filename"
+
 	"github.com/ppincak/rysen/crypto"
 	"github.com/ppincak/rysen/services/aggregator"
 	"github.com/ppincak/rysen/services/feed"
@@ -28,6 +30,7 @@ func main() {
 	// Setup logging
 	log.SetFormatter(&log.JSONFormatter{})
 	log.SetLevel(log.DebugLevel)
+	log.AddHook(filename.NewHook())
 
 	bus := b.NewBus()
 	go bus.Start()
