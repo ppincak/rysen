@@ -77,6 +77,24 @@ func (service *Service) Create(model *Model) (*Feed, error) {
 	return feed, nil
 }
 
+// Delete feed
+func (service *Service) Delete(feedName string) error {
+	defer service.lock.Unlock()
+	service.lock.Lock()
+
+	feed, ok := service.feeds[feedName]
+	if !ok {
+		return errors.NewError("Feed with name [%s] not found", feedName)
+	}
+
+	feed.Destroy()
+	delete(service.feeds, feedName)
+
+	log.Infof("Feed [%s] deleted", feed.Name)
+
+	return nil
+}
+
 // Subscribe to feed
 func (service *Service) SubscribeTo(name string, client *ws.Client) error {
 	defer service.lock.Unlock()

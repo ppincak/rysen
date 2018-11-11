@@ -110,9 +110,16 @@ func (service *Service) createSchema(schema *Model, instance *ExchangeSchema, ex
 }
 
 // Update the schema
-// Note: may be not the best solution performance wise, but seems like a simplest option to implement
-func (service *Service) UpdateSchema(schema *Model) (*ExchangeSchema, error) {
-	defer service.lock.Unlock()
+// Note: may be not the best solution performance wise, but seems like the most reasonable to implement
+func (service *Service) UpdateSchema(schema *Model) (instance *ExchangeSchema, err error) {
+	defer func() {
+		service.lock.Unlock()
+
+		// Teardown in case of an error
+		if err != nil && instance != nil {
+			instance.Destroy()
+		}
+	}()
 	service.lock.Lock()
 
 	exchange, ok := service.exchanges[schema.Exchange]
@@ -120,7 +127,6 @@ func (service *Service) UpdateSchema(schema *Model) (*ExchangeSchema, error) {
 		return nil, errors.NewError("Exchange [%s] not found", schema.Exchange)
 	}
 
-	var instance *ExchangeSchema
 	if i, ok := service.schemaInstances[schema.Name]; !ok {
 		return nil, errors.NewError("Schema with name [%s] not found", schema.Name)
 	} else {
@@ -130,7 +136,7 @@ func (service *Service) UpdateSchema(schema *Model) (*ExchangeSchema, error) {
 
 	instance = NewExchangeSchema(schema)
 
-	err := service.createSchema(schema, instance, exchange)
+	err = service.createSchema(schema, instance, exchange)
 	if err != nil {
 		log.Error("Failed to create schema [%#v]", schema)
 		return nil, err
@@ -143,11 +149,11 @@ func (service *Service) DeleteSchema(schemaName string) error {
 	defer service.lock.Unlock()
 	service.lock.Lock()
 
-	schema, ok := service.schemaInstances[schemaName]
+	instance, ok := service.schemaInstances[schemaName]
 	if !ok {
 		return errors.NewError("Schema not found")
 	}
-	schema.Destroy()
+	instance.Destroy()
 
 	return nil
 }

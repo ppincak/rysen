@@ -7,8 +7,9 @@ import (
 
 // Model structure describing aggregator
 type Model struct {
-	ReadTopic       string               `json:"readTopic"`
-	WriteTopic      string               `json:"writeTopic"`
+	ReadTopic  string `json:"readTopic"`
+	WriteTopic string `json:"writeTopic"`
+	// TODO clean local storage and rename
 	AggregationFunc string               `json:"aggregationFunc"`
 	Condition       AggregationCondition `json:"condition"`
 }

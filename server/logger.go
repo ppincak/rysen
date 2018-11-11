@@ -44,6 +44,8 @@ func levelSwitch(level log.Level, entry *log.Entry) LogFunc {
 		logFunc = entry.Debug
 	case log.InfoLevel:
 		logFunc = entry.Info
+	case log.ErrorLevel:
+		logFunc = entry.Error
 	}
 
 	return logFunc

@@ -19,6 +19,13 @@ type Exchange interface {
 	Symbols() *Symbols
 }
 
+// Base model for exchange
+type ExchangeModel struct {
+	Name    string              `json:"name"`
+	Assets  map[string][]string `json:"assets"`
+	Symbols []string            `json:"symbols"`
+}
+
 // Collections of multiple exchanges where the key is the name of exchange
 type Exchanges map[string]Exchange
 
@@ -30,4 +37,20 @@ func NewExchanges() Exchanges {
 // Register new Exchange
 func (exchanges Exchanges) Register(exchange Exchange) {
 	exchanges[exchange.Name()] = exchange
+}
+
+// Get list of all exchanges
+func (exchanges Exchanges) List() []*ExchangeModel {
+	result := make([]*ExchangeModel, len(exchanges))
+	i := 0
+	for _, exchange := range exchanges {
+		exchangeSymbols := exchange.Symbols()
+		result[i] = &ExchangeModel{
+			Name:    exchange.Name(),
+			Assets:  exchangeSymbols.Assets,
+			Symbols: exchangeSymbols.Symbols,
+		}
+		i++
+	}
+	return result
 }

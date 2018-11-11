@@ -48,6 +48,11 @@ func (persistence *Persistence) Persist(key string, value interface{}) (err erro
 	return nil
 }
 
+// Delete
+func (persistence *Persistence) Delete(key string) (err error) {
+	return persistence.Db().Delete(persistence.AssembleKey(key), nil)
+}
+
 // Get persited value
 func (persistence *Persistence) Get(key string, marshalled interface{}) (err error) {
 	value, err := persistence.Db().Get(persistence.AssembleKey(key), nil)

@@ -25,11 +25,13 @@ func NewRouter(app *App) *Router {
 // initialize http Router
 func (router *Router) Init(engine *gin.Engine) {
 	engine.GET(GetStatistics, router.getStatistics)
+	engine.GET(GetExchanges, router.getExchanges)
 	engine.GET(GetExchangeSymbols, router.getExchangeSymbols)
 	engine.GET(GetLiveFeed, router.getLiveFeed)
 	engine.GET(GetFeeds, router.getFeeds)
 	engine.GET(GetClientFeeds, router.getClientFeeds)
 	engine.POST(CreateFeed, router.createFeed)
+	engine.DELETE(DeleteFeed, router.deleteFeed)
 	engine.POST(SubscribeToFeed, router.subscribeToFeed)
 	engine.DELETE(UnsubscribeFromFeed, router.subscribeToFeed)
 	engine.GET(GetSchemas, router.getSchemas)
@@ -42,6 +44,11 @@ func (router *Router) Init(engine *gin.Engine) {
 // Get system statistics/metrics
 func (router *Router) getStatistics(context *gin.Context) {
 	context.JSON(http.StatusOK, router.app.Monitor.Statistics())
+}
+
+// Get exchanges
+func (router *Router) getExchanges(context *gin.Context) {
+	context.JSON(http.StatusOK, router.app.Exchanges.List())
 }
 
 // Get exchange symbols
@@ -84,6 +91,23 @@ func (router *Router) createFeed(context *gin.Context) {
 	}
 	err = router.app.FeedPersistence.SaveFeed(model)
 	if err != nil {
+		errors.ErrorBadRequest(context, err)
+		return
+	}
+	context.Status(http.StatusCreated)
+}
+
+// Delete a feed
+func (router *Router) deleteFeed(context *gin.Context) {
+	feedName := context.DefaultQuery("feed", "")
+	if feedName == "" {
+		errors.BadRequest(context, "Invalid feed name", "invalid.feed")
+	}
+	if err := router.app.FeedService.Delete(feedName); err != nil {
+		errors.ErrorBadRequest(context, err)
+		return
+	}
+	if err := router.app.FeedPersistence.Delete(feedName); err != nil {
 		errors.ErrorBadRequest(context, err)
 		return
 	}
@@ -135,9 +159,13 @@ func (router *Router) deleteSchema(context *gin.Context) {
 	schemaName := context.Param("schemaName")
 	if err := router.app.SchemaService.DeleteSchema(schemaName); err != nil {
 		errors.ErrorBadRequest(context, err)
-	} else {
-		context.Status(http.StatusOK)
+		return
 	}
+	if err := router.app.SchemaPersistence.Delete(schemaName); err != nil {
+		errors.ErrorBadRequest(context, err)
+		return
+	}
+	context.Status(http.StatusOK)
 }
 
 func (router *Router) handleSubscription(context *gin.Context, handler func(name string, client *ws.Client) error) {
