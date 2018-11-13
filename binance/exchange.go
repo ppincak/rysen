@@ -60,6 +60,15 @@ func (exchange *Exchange) Aggregations() aggregate.AggregationsMap {
 	return data.Aggregations
 }
 
+// Get scrapers
+func (exchange *Exchange) Scrapers() []string {
+	return []string{
+		"scrapeOrders",
+		"scrapePrice",
+		"scrapeTrades",
+	}
+}
+
 // Get caller
 func (exchange *Exchange) Caller() scrape.Caller {
 	return exchange.caller

@@ -15,7 +15,7 @@ const (
 	AveragePricesFunc  aggregate.AggregationType = "averagePrices"
 	SumTradesFunc      aggregate.AggregationType = "sumTrades"
 	SumGroupTradesFunc aggregate.AggregationType = "sumGroupTrades"
-	OrdersVolumeFunc   aggregate.AggregationType = "OrdersVolume"
+	OrdersVolumeFunc   aggregate.AggregationType = "ordersVolume"
 )
 
 // Map of aggregations

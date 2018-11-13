@@ -13,6 +13,8 @@ type Exchange interface {
 	Name() string
 	// Get all aggregations available for the exchange
 	Aggregations() aggregate.AggregationsMap
+	// Get all scraping options available for the exchange
+	Scrapers() []string
 	// Get caller
 	Caller() scrape.Caller
 	// Get all symbols available for exchange
@@ -21,9 +23,11 @@ type Exchange interface {
 
 // Base model for exchange
 type ExchangeModel struct {
-	Name    string              `json:"name"`
-	Assets  map[string][]string `json:"assets"`
-	Symbols []string            `json:"symbols"`
+	Name         string              `json:"name"`
+	Assets       map[string][]string `json:"assets"`
+	Symbols      []string            `json:"symbols"`
+	Scrapers     []string            `json:"scrapers"`
+	Aggregations []string            `json:"aggregations"`
 }
 
 // Collections of multiple exchanges where the key is the name of exchange
@@ -45,10 +49,20 @@ func (exchanges Exchanges) List() []*ExchangeModel {
 	i := 0
 	for _, exchange := range exchanges {
 		exchangeSymbols := exchange.Symbols()
+
+		j := 0
+		aggregations := make([]string, len(exchange.Aggregations()))
+		for aggregation, _ := range exchange.Aggregations() {
+			aggregations[j] = string(aggregation)
+			j++
+		}
+
 		result[i] = &ExchangeModel{
-			Name:    exchange.Name(),
-			Assets:  exchangeSymbols.Assets,
-			Symbols: exchangeSymbols.Symbols,
+			Name:         exchange.Name(),
+			Assets:       exchangeSymbols.Assets,
+			Symbols:      exchangeSymbols.Symbols,
+			Scrapers:     exchange.Scrapers(),
+			Aggregations: aggregations,
 		}
 		i++
 	}

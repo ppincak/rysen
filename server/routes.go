@@ -2,7 +2,7 @@ package server
 
 const (
 	GetExchanges        = "/v1/exchanges"
-	GetExchangeSymbols  = "/v1/symbols/:exchange"
+	GetExchangeSymbols  = "/v1/exchanges/:exchange/symbols"
 	GetSchemas          = "/v1/schemas"
 	GetSchema           = "/v1/schemas/:schemaName"
 	CreateSchema        = GetSchemas
