@@ -22,7 +22,12 @@ func NewService(bus *b.Bus) *Service {
 // Create aggregator
 func (service *Service) Create(model *Model, aggregations aggregate.AggregationsMap) (*aggregate.Aggregator, error) {
 	var conditionFunc aggregate.AggregationCondition
-	switch model.Condition.Func {
+	convertedFunc, ok := aggregate.ConversionTable[model.Condition.Func]
+	if !ok {
+		return nil, errors.NewError("Aggregation function [%s] not found", model.Condition.Func)
+	}
+
+	switch convertedFunc {
 	case aggregate.TillSize:
 		conditionFunc = aggregate.AggretateTillSize(int(model.Condition.Value))
 	case aggregate.TillTime:
@@ -31,7 +36,7 @@ func (service *Service) Create(model *Model, aggregations aggregate.Aggregations
 
 	aggregationFunc, ok := aggregations[aggregate.AggregationType(model.AggregationFunc)]
 	if !ok {
-		return nil, errors.NewError("Aggregation function ot found")
+		return nil, errors.NewError("Aggregation function not found")
 	}
 
 	aggregator := aggregate.NewAggregator(

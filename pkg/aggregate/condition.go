@@ -12,6 +12,11 @@ const (
 	TillTime
 )
 
+var ConversionTable = map[string]ConditionType{
+	"tillSize": TillSize,
+	"tillTime": TillTime,
+}
+
 // Generic aggregation condition
 func AggretateTillSize(size int) AggregationCondition {
 	return func(from int64, to int64, entries *collections.SliceList) bool {

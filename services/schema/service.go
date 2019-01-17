@@ -153,6 +153,8 @@ func (service *Service) DeleteSchema(schemaName string) error {
 	if !ok {
 		return errors.NewError("Schema not found")
 	}
+	delete(service.schemaInstances, schemaName)
+
 	instance.Destroy()
 
 	return nil
