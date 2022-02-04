@@ -8,13 +8,13 @@ import (
 	"time"
 
 	"github.com/go-resty/resty"
-	"github.com/ppincak/rysen/binance/model"
-	"github.com/ppincak/rysen/core"
-	"github.com/ppincak/rysen/crypto"
-	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/json"
 	log "github.com/sirupsen/logrus"
+	"rysen/binance/model"
+	"rysen/core"
+	"rysen/crypto"
+	"rysen/monitor"
+	"rysen/pkg/errors"
+	"rysen/pkg/json"
 )
 
 var _ monitor.Reporter = (*Client)(nil)

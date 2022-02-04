@@ -1,8 +1,8 @@
 package bus
 
 import (
-	"github.com/ppincak/rysen/core"
 	log "github.com/sirupsen/logrus"
+	"rysen/core"
 )
 
 // TODO should be renamed to subscriber !!

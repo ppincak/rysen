@@ -3,12 +3,12 @@ package schema
 import (
 	"sync"
 
-	"github.com/ppincak/rysen/crypto"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/services/aggregator"
-	"github.com/ppincak/rysen/services/feed"
-	"github.com/ppincak/rysen/services/scraper"
 	log "github.com/sirupsen/logrus"
+	"rysen/crypto"
+	"rysen/pkg/errors"
+	"rysen/services/aggregator"
+	"rysen/services/feed"
+	"rysen/services/scraper"
 )
 
 type Service struct {

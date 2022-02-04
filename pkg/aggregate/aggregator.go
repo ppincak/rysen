@@ -5,8 +5,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/collections"
+	"rysen/pkg/bus"
+	"rysen/pkg/collections"
 )
 
 // Aggregator

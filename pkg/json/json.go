@@ -3,7 +3,7 @@ package json
 import (
 	"encoding/json"
 
-	"github.com/ppincak/rysen/pkg/errors"
+	"rysen/pkg/errors"
 )
 
 // unmarshall as mao

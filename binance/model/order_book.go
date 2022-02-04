@@ -1,6 +1,6 @@
 package model
 
-import "github.com/ppincak/rysen/pkg/converters"
+import "rysen/pkg/converters"
 
 type OrderBook struct {
 	Asks []interface{} `json:"asks"`

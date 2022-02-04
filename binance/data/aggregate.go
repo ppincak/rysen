@@ -3,11 +3,11 @@ package data
 import (
 	"reflect"
 
-	"github.com/ppincak/rysen/binance/model"
-	"github.com/ppincak/rysen/math"
-	"github.com/ppincak/rysen/pkg/aggregate"
-	"github.com/ppincak/rysen/pkg/errors"
 	"gonum.org/v1/gonum/floats"
+	"rysen/binance/model"
+	"rysen/math"
+	"rysen/pkg/aggregate"
+	"rysen/pkg/errors"
 )
 
 // Aggregation options

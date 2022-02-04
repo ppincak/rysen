@@ -1,13 +1,13 @@
 package binance
 
 import (
-	"github.com/ppincak/rysen/binance/data"
-	"github.com/ppincak/rysen/crypto"
-	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/aggregate"
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/scrape"
+	"rysen/binance/data"
+	"rysen/crypto"
+	"rysen/monitor"
+	"rysen/pkg/aggregate"
+	"rysen/pkg/bus"
+	"rysen/pkg/errors"
+	"rysen/pkg/scrape"
 )
 
 type Exchange struct {

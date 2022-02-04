@@ -3,10 +3,10 @@ package binance
 import (
 	"time"
 
-	"github.com/ppincak/rysen/binance/model"
+	"rysen/binance/model"
 
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/scrape"
+	"rysen/pkg/bus"
+	"rysen/pkg/scrape"
 
 	log "github.com/sirupsen/logrus"
 )

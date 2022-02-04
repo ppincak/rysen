@@ -1,7 +1,7 @@
 package aggregate
 
 import (
-	"github.com/ppincak/rysen/pkg/collections"
+	"rysen/pkg/collections"
 )
 
 type ConditionType uint8

@@ -1,8 +1,8 @@
 package crypto
 
 import (
-	"github.com/ppincak/rysen/pkg/aggregate"
-	"github.com/ppincak/rysen/pkg/scrape"
+	"rysen/pkg/aggregate"
+	"rysen/pkg/scrape"
 )
 
 // Represent crypto exchange eg: Binance, Idex

@@ -3,7 +3,7 @@ package converters
 import (
 	"strconv"
 
-	"github.com/ppincak/rysen/pkg/errors"
+	"rysen/pkg/errors"
 )
 
 // Convert value to float64

@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/errors"
+	"rysen/monitor"
+	"rysen/pkg/errors"
 
 	"github.com/gorilla/websocket"
 	log "github.com/sirupsen/logrus"

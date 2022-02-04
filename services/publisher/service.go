@@ -4,9 +4,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/pub"
+	"rysen/pkg/bus"
+	"rysen/pkg/errors"
+	"rysen/pkg/pub"
 )
 
 type Service struct {

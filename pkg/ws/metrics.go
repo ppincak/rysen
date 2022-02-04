@@ -1,8 +1,8 @@
 package ws
 
 import (
-	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/async"
+	"rysen/monitor"
+	"rysen/pkg/async"
 )
 
 type WsMetrics struct {

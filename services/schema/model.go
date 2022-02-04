@@ -1,10 +1,10 @@
 package schema
 
 import (
-	"github.com/ppincak/rysen/pkg/aggregate"
-	"github.com/ppincak/rysen/pkg/scrape"
-	"github.com/ppincak/rysen/services/aggregator"
-	"github.com/ppincak/rysen/services/scraper"
+	"rysen/pkg/aggregate"
+	"rysen/pkg/scrape"
+	"rysen/services/aggregator"
+	"rysen/services/scraper"
 )
 
 // Model for a single exchange

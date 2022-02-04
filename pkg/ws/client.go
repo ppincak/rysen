@@ -6,8 +6,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
-	"github.com/ppincak/rysen/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"rysen/pkg/errors"
 )
 
 type Client struct {

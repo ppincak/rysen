@@ -1,7 +1,7 @@
 package scraper
 
 import (
-	"github.com/ppincak/rysen/pkg/collections"
+	"rysen/pkg/collections"
 )
 
 // Scraper model

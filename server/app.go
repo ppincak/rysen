@@ -1,16 +1,16 @@
 package server
 
 import (
-	"github.com/ppincak/rysen/crypto"
-	"github.com/ppincak/rysen/monitor"
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/ws"
-	"github.com/ppincak/rysen/services/aggregator"
-	"github.com/ppincak/rysen/services/feed"
-	"github.com/ppincak/rysen/services/publisher"
-	"github.com/ppincak/rysen/services/schema"
-	"github.com/ppincak/rysen/services/scraper"
-	"github.com/ppincak/rysen/services/security"
+	"rysen/crypto"
+	"rysen/monitor"
+	"rysen/pkg/bus"
+	"rysen/pkg/ws"
+	"rysen/services/aggregator"
+	"rysen/services/feed"
+	"rysen/services/publisher"
+	"rysen/services/schema"
+	"rysen/services/scraper"
+	"rysen/services/security"
 )
 
 // Application component container

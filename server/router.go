@@ -3,12 +3,12 @@ package server
 import (
 	"net/http"
 
-	"github.com/ppincak/rysen/pkg/ws"
-	"github.com/ppincak/rysen/services/feed"
+	"rysen/pkg/ws"
+	"rysen/services/feed"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ppincak/rysen/server/errors"
-	"github.com/ppincak/rysen/services/schema"
+	"rysen/server/errors"
+	"rysen/services/schema"
 )
 
 type Router struct {

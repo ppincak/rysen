@@ -3,7 +3,7 @@ package publisher
 import (
 	"context"
 
-	b "github.com/ppincak/rysen/pkg/bus"
+	b "rysen/pkg/bus"
 
 	kafka "github.com/segmentio/kafka-go"
 )

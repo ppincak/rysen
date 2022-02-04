@@ -1,8 +1,8 @@
 package aggregate
 
 import (
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/collections"
+	"rysen/pkg/bus"
+	"rysen/pkg/collections"
 )
 
 // Result of the aggregation

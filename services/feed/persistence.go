@@ -3,8 +3,8 @@ package feed
 import (
 	"encoding/json"
 
-	"github.com/ppincak/rysen/pkg/persistence"
 	"github.com/syndtr/goleveldb/leveldb"
+	"rysen/pkg/persistence"
 )
 
 type Persistence struct {

@@ -3,9 +3,9 @@ package feed
 import (
 	"reflect"
 
-	"github.com/ppincak/rysen/pkg/aggregate"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/scrape"
+	"rysen/pkg/aggregate"
+	"rysen/pkg/errors"
+	"rysen/pkg/scrape"
 )
 
 // Do message trasformation

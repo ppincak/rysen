@@ -1,6 +1,6 @@
 package model
 
-import "github.com/ppincak/rysen/pkg/converters"
+import "rysen/pkg/converters"
 
 type Trade struct {
 	Id           int64  `json:"id"`

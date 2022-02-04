@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ppincak/rysen/pkg/errors"
+	"rysen/pkg/errors"
 )
 
 func ErrorBadRequest(context *gin.Context, err error) {

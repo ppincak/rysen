@@ -1,7 +1,7 @@
 package aggregator
 
 import (
-	"github.com/ppincak/rysen/pkg/collections"
+	"rysen/pkg/collections"
 )
 
 // Model structure describing aggregator

@@ -6,7 +6,7 @@ import (
 
 	"github.com/syndtr/goleveldb/leveldb"
 
-	"github.com/ppincak/rysen/pkg/persistence"
+	"rysen/pkg/persistence"
 )
 
 type Persistence struct {

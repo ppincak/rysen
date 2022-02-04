@@ -1,8 +1,8 @@
 package binance
 
 import (
-	"github.com/ppincak/rysen/binance/model"
-	"github.com/ppincak/rysen/crypto"
+	"rysen/binance/model"
+	"rysen/crypto"
 )
 
 func NewSymbols(exchangeInfo *model.ExchangeInfo) *crypto.Symbols {

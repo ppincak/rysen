@@ -3,12 +3,12 @@ package feed
 import (
 	"sync"
 
-	"github.com/ppincak/rysen/monitor"
+	"rysen/monitor"
 
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/ws"
+	"rysen/pkg/errors"
+	"rysen/pkg/ws"
 
-	"github.com/ppincak/rysen/pkg/bus"
+	"rysen/pkg/bus"
 
 	log "github.com/sirupsen/logrus"
 )

@@ -3,8 +3,8 @@ package scrape
 import (
 	"time"
 
-	"github.com/ppincak/rysen/core"
 	log "github.com/sirupsen/logrus"
+	"rysen/core"
 )
 
 // Scrapes from binance

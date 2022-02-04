@@ -5,21 +5,21 @@ import (
 
 	"github.com/onrik/logrus/filename"
 
-	"github.com/ppincak/rysen/crypto"
-	"github.com/ppincak/rysen/services/aggregator"
-	"github.com/ppincak/rysen/services/feed"
-	"github.com/ppincak/rysen/services/publisher"
-	"github.com/ppincak/rysen/services/schema"
-	"github.com/ppincak/rysen/services/scraper"
-	"github.com/ppincak/rysen/services/security"
 	"github.com/syndtr/goleveldb/leveldb"
+	"rysen/crypto"
+	"rysen/services/aggregator"
+	"rysen/services/feed"
+	"rysen/services/publisher"
+	"rysen/services/schema"
+	"rysen/services/scraper"
+	"rysen/services/security"
 
-	"github.com/ppincak/rysen/monitor"
-	b "github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/ws"
-	"github.com/ppincak/rysen/server"
+	"rysen/monitor"
+	b "rysen/pkg/bus"
+	"rysen/pkg/ws"
+	"rysen/server"
 
-	"github.com/ppincak/rysen/binance"
+	"rysen/binance"
 
 	log "github.com/sirupsen/logrus"
 )

@@ -1,6 +1,6 @@
 package async
 
-import "github.com/ppincak/rysen/pkg/errors"
+import "rysen/pkg/errors"
 
 type Limiter struct {
 	*Counter

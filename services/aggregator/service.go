@@ -1,10 +1,10 @@
 package aggregator
 
 import (
-	"github.com/ppincak/rysen/pkg/aggregate"
-	b "github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/scrape"
+	"rysen/pkg/aggregate"
+	b "rysen/pkg/bus"
+	"rysen/pkg/errors"
+	"rysen/pkg/scrape"
 )
 
 type Service struct {

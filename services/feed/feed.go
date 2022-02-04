@@ -3,8 +3,8 @@ package feed
 import (
 	"sync"
 
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/ws"
+	"rysen/pkg/bus"
+	"rysen/pkg/ws"
 
 	log "github.com/sirupsen/logrus"
 )

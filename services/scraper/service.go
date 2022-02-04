@@ -1,12 +1,12 @@
 package scraper
 
 import (
-	"github.com/ppincak/rysen/crypto"
+	"rysen/crypto"
 
-	"github.com/ppincak/rysen/pkg/bus"
-	"github.com/ppincak/rysen/pkg/collections"
-	"github.com/ppincak/rysen/pkg/errors"
-	"github.com/ppincak/rysen/pkg/scrape"
+	"rysen/pkg/bus"
+	"rysen/pkg/collections"
+	"rysen/pkg/errors"
+	"rysen/pkg/scrape"
 )
 
 // Scraper Service
