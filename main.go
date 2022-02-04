@@ -39,6 +39,7 @@ func main() {
 	binanceExchange := binance.NewExchange(binanceConfig, bus)
 	err := binanceExchange.Initialize()
 	if err != nil {
+		log.Error(err)
 		return
 	}
 
@@ -52,12 +53,14 @@ func main() {
 
 	db, err := leveldb.OpenFile("./db", nil)
 	if err != nil {
+		log.Error(err)
 		return
 	}
 
 	securityPersistence := security.NewPersistence(db, nil)
 	accounts, err := securityPersistence.GetAccounts()
 	if err != nil {
+		log.Error(err)
 		return
 	}
 

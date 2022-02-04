@@ -58,7 +58,7 @@ func (aggregator *Aggregator) Start() {
 	aggregator.eventc = eventc
 	aggregator.sub = aggregator.bus.Subscribe(aggregator.readTopic, eventc)
 
-	log.Infof("Stated aggregator for topic [%s]", aggregator.readTopic)
+	log.Infof("Started aggregator for topic [%s]", aggregator.readTopic)
 
 	for {
 		select {

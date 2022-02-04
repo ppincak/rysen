@@ -115,8 +115,7 @@ func OrdersVolume(message interface{}, lastEntry interface{}, from int64) (inter
 		bids := 0.0
 		count := 0
 		for _, m := range models {
-			if orderBook, ok := m.(*model.OrderBook); ok {
-				processed := orderBook.ProcessAll()
+			if processed, ok := m.(*model.OrderBookProcessed); ok {
 				asks += processed.Sum(processed.Asks)
 				bids += processed.Sum(processed.Bids)
 				count++
