@@ -1,1 +1,3 @@
-# Rysen Crypto exchange Helper
+# Project Description
+
+Crypto data scraper and data aggregation framework
